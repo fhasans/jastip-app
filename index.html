@@ -125,46 +125,65 @@
             }
         }
 
-        function displayOrders(orders) {
-            const groupedByDate = orders.reduce((acc, order) => {
-                const date = order.Timestamp.substring(0, 10);
-                if (!acc[date]) acc[date] = [];
-                acc[date].push(order);
-                return acc;
-            }, {});
+      function displayOrders(orders) {
+    const groupedByDate = orders.reduce((acc, order) => {
+        const date = order.Timestamp.substring(0, 10);
+        if (!acc[date]) acc[date] = [];
+        acc[date].push(order);
+        return acc;
+    }, {});
 
-            const sortedDates = Object.keys(groupedByDate).sort((a, b) => new Date(b) - new Date(a));
-            let html = '';
-            sortedDates.forEach(date => {
-                const displayDate = new Date(date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                const orderCount = groupedByDate[date].length;
-                // BARU: Tambahkan jumlah pesanan di header accordion
-                html += `<button class="accordion" data-date="${date}">${displayDate} (${orderCount} Pesanan)</button>`;
-                html += `<div class="panel">`;
-                groupedByDate[date].sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
-                
-                groupedByDate[date].forEach(order => {
-                    const buktiLink = order['Bukti Transfer'] ? `<a href="${order['Bukti Transfer']}" target="_blank" rel="noopener noreferrer">Lihat Bukti</a>` : 'Belum ada';
-                    const displayTime = new Date(order.Timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                    // BARU: Tambahkan tampilan Total Pesanan & format mata uang
-                    const totalPesananFormatted = order['Total Pesanan'] ? `${parseInt(order['Total Pesanan']).toLocaleString('id-ID')}` : '-';
+    const sortedDates = Object.keys(groupedByDate).sort((a, b) => new Date(b) - new Date(a));
+    let html = '';
+    sortedDates.forEach(date => {
+        const displayDate = new Date(date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        
+        // ======================================================================
+        // INI BAGIAN LOGIKA BARU YANG ANDA MINTA
+        //
+        // Alih-alih menghitung jumlah pesanan (orderCount), kita sekarang menjumlahkan
+        // nilai dari field "Total Pesanan" untuk semua pesanan pada tanggal ini.
+        const totalItems = groupedByDate[date].reduce((sum, order) => {
+            // Ambil nilai 'Total Pesanan', ubah ke angka. Jika kosong/tidak valid, anggap 0.
+            const itemCount = parseInt(order['Total Pesanan'] || 0, 10);
+            return sum + itemCount;
+        }, 0); // Mulai menjumlahkan dari 0
+        // ======================================================================
 
-                    html += `
-                        <div class="order-card" data-id="${order.ID}">
-                            <button class="edit-btn">Edit</button>
-                            <h3>${order.Nama}</h3>
-                            <p><strong>Titipan:</strong> ${order.Titipan}</p>
-                            <p class="editable-opsi"><strong>Opsi Lain:</strong> <span>${order['Opsi Lain'] || '-'}</span></p>
-                            <p class="editable-total"><strong>Total:</strong> <span>${totalPesananFormatted}</span></p>
-                            <p class="editable-bukti"><strong>Bukti TF:</strong> <span>${buktiLink}</span></p>
-                            <p class="timestamp">Dipesan jam: ${displayTime}</p>
-                        </div>
-                    `;
-                });
-                html += `</div>`;
-            });
-            listContainer.innerHTML = html || '<p>Belum ada titipan.</p>';
-        }
+        // Gunakan 'totalItems' yang sudah dijumlahkan di header accordion
+        html += `<button class="accordion" data-date="${date}">${displayDate} (Total ${totalItems} Item)</button>`;
+        html += `<div class="panel">`;
+        
+        groupedByDate[date].sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
+        
+        groupedByDate[date].forEach(order => {
+            const buktiLink = order['Bukti Transfer'] ? `<a href="${order['Bukti Transfer']}" target="_blank" rel="noopener noreferrer">Lihat Bukti</a>` : 'Belum ada';
+            const displayTime = new Date(order.Timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            
+            // PERBAIKAN: Menampilkan 'Total Pesanan' sebagai angka biasa, bukan mata uang (Rp)
+            const jumlahPesanan = order['Total Pesanan'] || '0';
+
+            html += `
+                <div class="order-card" data-id="${order.ID}">
+                    <button class="edit-btn">Edit</button>
+                    <h3>${order.Nama}</h3>
+                    <p><strong>Titipan:</strong> ${order.Titipan}</p>
+                    <p class="editable-opsi"><strong>Opsi Lain:</strong> <span>${order['Opsi Lain'] || '-'}</span></p>
+                    <p class="editable-total"><strong>Jumlah Pesanan:</strong> <span>${jumlahPesanan}</span></p>
+                    <p class="editable-bukti"><strong>Bukti TF:</strong> <span>${buktiLink}</span></p>
+                    <p class="timestamp">Dipesan jam: ${displayTime}</p>
+                </div>
+            `;
+        });
+        html += `</div>`;
+    });
+    
+    // Juga perbaiki logika edit agar tidak lagi memformat sebagai mata uang
+    // Ini sudah otomatis teratasi karena saat "Simpan" ditekan, fungsi fetchOrders -> displayOrders akan dipanggil ulang dengan format yang benar.
+    // Namun, saat tombol "Edit" ditekan, kita juga perlu perbaiki. Cari event listener di bawah.
+
+    listContainer.innerHTML = html || '<p>Belum ada titipan.</p>';
+}
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -205,18 +224,19 @@
                 const panel = e.target.nextElementSibling;
                 panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";
             }
-            if (e.target.classList.contains('edit-btn')) {
+           if (e.target.classList.contains('edit-btn')) {
                 const card = e.target.closest('.order-card');
                 const opsiP = card.querySelector('.editable-opsi span');
-                const totalP = card.querySelector('.editable-total span'); // BARU
+                const totalP = card.querySelector('.editable-total span');
                 const buktiP = card.querySelector('.editable-bukti span');
                 const buktiLink = buktiP.querySelector('a');
                 
-                // BARU: Ambil nilai angka saja dari total pesanan
+                // Kode yang ada saat ini sudah benar karena hanya mengambil angkanya
                 const currentTotal = totalP.textContent.replace(/[^0-9]/g, '');
 
                 opsiP.innerHTML = `<input type="text" value="${opsiP.textContent === '-' ? '' : opsiP.textContent}">`;
-                totalP.innerHTML = `<input type="number" value="${currentTotal}">`; // BARU
+                // Ganti label di dalam kartu pesanan saat diedit
+                totalP.innerHTML = `<input type="number" value="${currentTotal}">`;
                 buktiP.innerHTML = `<input type="url" value="${buktiLink ? buktiLink.href : ''}">`;
                 
                 e.target.textContent = 'Simpan';
