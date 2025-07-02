@@ -282,14 +282,11 @@
         opsiLain: opsiLain
       };
 
-      try {
+  try {
         const response = await fetch(SCRIPT_URL, {
           method: 'POST',
-          mode: 'cors', // Penting untuk cross-origin request
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
+          // mode: 'cors' BISA DIHAPUS, TAPI DIBIARKAN JUGA TIDAK MASALAH
+          body: JSON.stringify(data), // Langsung kirim body-nya
         });
 
         const result = await response.json();
