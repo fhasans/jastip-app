@@ -1,322 +1,227 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jastip Ceria</title>
-  <style>
-    /* CSS Sederhana untuk Tampilan yang Bersih */
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: #f4f7f6;
-      color: #333;
-      margin: 0;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background-color: #fff;
-      padding: 25px 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    }
-
-    h1,
-    h2 {
-      text-align: center;
-      color: #2c3e50;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    label {
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #34495e;
-    }
-
-    input[type="text"] {
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 15px;
-    }
-
-    .menu-item {
-      display: flex;
-      align-items: center;
-      background-color: #ecf0f1;
-      padding: 10px;
-      border-radius: 5px;
-    }
-
-    .menu-item input[type="checkbox"] {
-      margin-right: 10px;
-      width: 18px;
-      height: 18px;
-    }
-
-    button {
-      padding: 15px;
-      background-color: #3498db;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #2980b9;
-    }
-
-    button:disabled {
-      background-color: #bdc3c7;
-      cursor: not-allowed;
-    }
-
-    #order-list {
-      margin-top: 40px;
-    }
-
-    .order-card {
-      background-color: #f9f9f9;
-      border: 1px solid #eee;
-      border-left: 5px solid #3498db;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 5px;
-    }
-
-    .order-card h3 {
-      margin-top: 0;
-      color: #2980b9;
-    }
-
-    .order-card p {
-      margin: 5px 0;
-    }
-
-    .order-card .timestamp {
-      font-size: 0.8em;
-      color: #7f8c8d;
-      text-align: right;
-    }
-
-    #loading,
-    #message {
-      text-align: center;
-      font-size: 1.2em;
-      padding: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jastip Ceria</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #fff; padding: 25px 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        h1, h2 { text-align: center; color: #2c3e50; }
+        form { display: flex; flex-direction: column; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { margin-bottom: 8px; font-weight: 600; color: #34495e; }
+        input[type="text"], input[type="url"] { padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .menu-item { display: flex; align-items: center; background-color: #ecf0f1; padding: 10px; border-radius: 5px; }
+        .menu-item input[type="checkbox"] { margin-right: 10px; width: 18px; height: 18px; }
+        button { padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background-color 0.3s; }
+        button:hover { background-color: #2980b9; }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        #order-list { margin-top: 40px; }
+        .order-card { background-color: #f9f9f9; border: 1px solid #eee; border-left: 5px solid #3498db; padding: 15px; margin-bottom: 10px; border-radius: 5px; position: relative; }
+        .order-card h3 { margin-top: 0; color: #2980b9; }
+        .order-card p { margin: 8px 0; word-break: break-all; }
+        .order-card .timestamp { font-size: 0.8em; color: #7f8c8d; text-align: right; }
+        .edit-btn, .save-btn { font-size: 12px; padding: 5px 10px; position: absolute; top: 15px; right: 15px; background-color: #95a5a6; }
+        .save-btn { background-color: #27ae60; }
+        #loading, #message { text-align: center; font-size: 1.2em; padding: 20px; }
+        .accordion { background-color: #34495e; color: white; cursor: pointer; padding: 18px; width: 100%; border: none; text-align: left; outline: none; font-size: 18px; transition: 0.4s; margin-top: 10px; border-radius: 5px; }
+        .accordion.active, .accordion:hover { background-color: #2c3e50; }
+        .accordion:after { content: '\\002B'; color: #fff; font-weight: bold; float: right; margin-left: 5px; }
+        .accordion.active:after { content: "\\2212"; }
+        .panel { padding: 0 18px; background-color: white; max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; border-radius: 0 0 5px 5px; border: 1px solid #ddd; border-top: none; }
+    </style>
 </head>
-
 <body>
-
-  <div class="container">
-    <h1>📝 List Jastip Budak Vendor</h1>
-
-    <form id="jastip-form">
-      <div class="form-group">
-        <label for="nama">Nama Kamu:</label>
-        <input type="text" id="nama" name="nama" placeholder="Contoh: Budi" required>
-      </div>
-
-      <div class="form-group">
-        <label>Pilih Titipan (boleh lebih dari satu):</label>
-        <div class="menu-grid" id="menu-container">
-          <!-- Menu akan di-generate oleh JavaScript -->
+    <div class="container">
+        <h1>📝 List Jastip Ceria</h1>
+        <form id="jastip-form">
+            <div class="form-group"><label for="nama">Nama Kamu:</label><input type="text" id="nama" name="nama" placeholder="Contoh: Budi" required></div>
+            <div class="form-group"><label>Pilih Titipan (boleh lebih dari satu):</label><div class="menu-grid" id="menu-container"></div></div>
+            <div class="form-group"><label for="opsi-lain">Opsi Lain (jika titipan utama tidak ada):</label><input type="text" id="opsi-lain" name="opsi-lain" placeholder="Contoh: Apa saja yang penting ayam"></div>
+            <div class="form-group"><label for="bukti-transfer">Link Bukti Transfer (opsional):</label><input type="url" id="bukti-transfer" name="bukti-transfer" placeholder="https://... (contoh: link Google Drive)"></div>
+            <button type="submit" id="submit-button">Kirim Titipan</button>
+        </form>
+        <div id="message"></div>
+        <div id="order-list">
+            <h2>Daftar Titipan Saat Ini</h2>
+            <div id="loading">Memuat daftar titipan...</div>
+            <div id="list-container"></div>
         </div>
-      </div>
-
-      <div class="form-group">
-        <label for="opsi-lain">Opsi Lain (jika titipan utama tidak ada):</label>
-        <input type="text" id="opsi-lain" name="opsi-lain" placeholder="Contoh: Apa saja yang penting ayam">
-      </div>
-
-      <button type="submit" id="submit-button">Kirim Titipan</button>
-    </form>
-
-    <div id="message"></div>
-
-    <div id="order-list">
-      <h2>Daftar Titipan Saat Ini</h2>
-      <div id="loading">Memuat daftar titipan...</div>
-      <div id="list-container"></div>
     </div>
-  </div>
+    <script>
+        // ==================================================================
+        // KONFIGURASI - PASTIKAN URL INI BENAR
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwp7GL7aoRjWvA1qcm239Xf2D8SktHuiedC-XDZeBG363fDENl3pT_bpziNoYSVPZn/exec";
+        // ==================================================================
+        const menuItems = ["Pempek", "Grilled chicken salad", "Salad sayur", "Salad buah", "Dimsum Mentai", "Macaroni Mentai", "Macaroni Schotel", "Sate ayam", "Pernasian (random)", "Nasi bakar", "Nasi kuning", "Nasi goreng", "Nasi bali", "Jasuke", "Nona manis/kue talam", "Bapao", "Bapia kacang ijo", "Pangsit chili oil", "Lasagna", "Spaghetti", "Burger", "Setup roti (pandan/coklat)", "Bubur campur manis", "Apem", "Roti manis", "Onde-onde", "Toppoki", "Sushi", "Chicken steak", "Putu ayu", "Sandwich", "Mie goreng", "Kue sus", "Dadar gulung", "Bugis mandi", "Pudding", "Takoyaki", "Buko pandan", "Buah potong", "Risol", "Pastel", "Donat (gula/meses)", "Bomboloni", "Hotdog", "Spring roll ala vietnam", "Zuppa soup", "Manggo sticky rice", "Mochi", "Kwetiaw goreng"];
 
-  <script>
-    // ==================================================================
-    // KONFIGURASI
-    // GANTI URL INI dengan URL Web App dari Google Apps Script Anda!
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRluLGvqngSy_IBQjrhPFS9-M_zNWXL1l0QpECwaQ4LPFgaLOJKa-cSKFTmIadV7Xt_Q/exec";
-    // ==================================================================
+        const form = document.getElementById('jastip-form');
+        const submitButton = document.getElementById('submit-button');
+        const messageDiv = document.getElementById('message');
+        const listContainer = document.getElementById('list-container');
+        const loadingDiv = document.getElementById('loading');
+        const menuContainer = document.getElementById('menu-container');
 
-    // Daftar Menu
-    const menuItems = [
-      "Pempek", "Grilled chicken salad", "Salad sayur", "Salad buah", "Dimsum Mentai",
-      "Macaroni Mentai", "Macaroni Schotel", "Sate ayam", "Pernasian (random)", "Nasi bakar",
-      "Nasi kuning", "Nasi goreng", "Nasi bali", "Jasuke", "Nona manis/kue talam",
-      "Bapao", "Bapia kacang ijo", "Pangsit chili oil", "Lasagna", "Spaghetti",
-      "Burger", "Setup roti (pandan/coklat)", "Bubur campur manis", "Apem", "Roti manis",
-      "Onde-onde", "Toppoki", "Sushi", "Chicken steak", "Putu ayu", "Sandwich",
-      "Mie goreng", "Kue sus", "Dadar gulung", "Bugis mandi", "Pudding", "Takoyaki",
-      "Buko pandan", "Buah potong", "Risol", "Pastel", "Donat (gula/meses)",
-      "Bomboloni", "Hotdog", "Spring roll ala vietnam", "Zuppa soup", "Manggo sticky rice",
-      "Mochi", "Kwetiaw goreng"
-    ];
-
-    // Elemen-elemen DOM
-    const form = document.getElementById('jastip-form');
-    const submitButton = document.getElementById('submit-button');
-    const messageDiv = document.getElementById('message');
-    const listContainer = document.getElementById('list-container');
-    const loadingDiv = document.getElementById('loading');
-    const menuContainer = document.getElementById('menu-container');
-
-    // Fungsi untuk menampilkan menu
-    function renderMenu() {
-      menuItems.forEach(item => {
-        const menuItemDiv = document.createElement('div');
-        menuItemDiv.className = 'menu-item';
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = item.replace(/\s+/g, '-').toLowerCase(); // Buat ID unik
-        checkbox.name = 'titipan';
-        checkbox.value = item;
-
-        const label = document.createElement('label');
-        label.htmlFor = checkbox.id;
-        label.textContent = item;
-
-        menuItemDiv.appendChild(checkbox);
-        menuItemDiv.appendChild(label);
-        menuContainer.appendChild(menuItemDiv);
-      });
-    }
-
-    // Fungsi untuk mengambil dan menampilkan daftar titipan
-    async function fetchOrders() {
-      loadingDiv.style.display = 'block';
-      listContainer.innerHTML = '';
-      try {
-        const response = await fetch(SCRIPT_URL);
-        const result = await response.json();
-
-        if (result.data && result.data.length > 0) {
-          displayOrders(result.data);
-        } else {
-          listContainer.innerHTML = '<p>Belum ada titipan. Jadilah yang pertama!</p>';
+        function renderMenu() {
+            menuContainer.innerHTML = menuItems.map(item => `
+                <div class="menu-item">
+                    <input type="checkbox" id="${item.replace(/\s+/g, '-').toLowerCase()}" name="titipan" value="${item}">
+                    <label for="${item.replace(/\s+/g, '-').toLowerCase()}">${item}</label>
+                </div>
+            `).join('');
         }
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-        listContainer.innerHTML = '<p style="color: red;">Gagal memuat daftar titipan. Coba refresh halaman.</p>';
-      } finally {
-        loadingDiv.style.display = 'none';
-      }
-    }
 
-    // Fungsi untuk menampilkan data ke dalam card
-    function displayOrders(orders) {
-      listContainer.innerHTML = ''; // Bersihkan list lama
-      orders.forEach(order => {
-        const card = document.createElement('div');
-        card.className = 'order-card';
-        card.innerHTML = `
-                    <h3>${order.Nama}</h3>
-                    <p><strong>Titipan:</strong> ${order.Titipan}</p>
-                    ${order['Opsi Lain'] ? `<p><strong>Opsi Lain:</strong> ${order['Opsi Lain']}</p>` : ''}
-                    <p class="timestamp">${order.Timestamp}</p>
-                `;
-        listContainer.appendChild(card);
-      });
-    }
+        async function fetchOrders() {
+            loadingDiv.style.display = 'block';
+            listContainer.innerHTML = '';
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const result = await response.json();
+                if (result.data && result.data.length > 0) {
+                    displayOrders(result.data);
+                } else {
+                    listContainer.innerHTML = '<p>Belum ada titipan. Jadilah yang pertama!</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                listContainer.innerHTML = '<p style="color: red;">Gagal memuat daftar titipan. Coba refresh halaman.</p>';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
 
-    // Event listener untuk form submission
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault(); // Mencegah form reload halaman
+        function displayOrders(orders) {
+            const groupedByDate = orders.reduce((acc, order) => {
+                const date = order.Timestamp.split(' ')[0];
+                if (!acc[date]) acc[date] = [];
+                acc[date].push(order);
+                return acc;
+            }, {});
 
-      submitButton.disabled = true;
-      submitButton.textContent = 'Mengirim...';
-      messageDiv.textContent = '';
+            let html = '';
+            for (const date in groupedByDate) {
+                html += `<button class="accordion">${date}</button>`;
+                html += `<div class="panel">`;
+                groupedByDate[date].forEach(order => {
+                    const buktiLink = order['Bukti Transfer'] ? `<a href="${order['Bukti Transfer']}" target="_blank">Lihat Bukti</a>` : 'Belum ada';
+                    html += `
+                        <div class="order-card" data-id="${order.ID}">
+                            <button class="edit-btn">Edit</button>
+                            <h3>${order.Nama}</h3>
+                            <p><strong>Titipan:</strong> ${order.Titipan}</p>
+                            <p class="editable-opsi"><strong>Opsi Lain:</strong> <span>${order['Opsi Lain'] || '-'}</span></p>
+                            <p class="editable-bukti"><strong>Bukti TF:</strong> <span>${buktiLink}</span></p>
+                            <p class="timestamp">${order.Timestamp}</p>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+            listContainer.innerHTML = html;
+        }
 
-      const nama = document.getElementById('nama').value;
-      const opsiLain = document.getElementById('opsi-lain').value;
-      const selectedItems = Array.from(document.querySelectorAll('input[name="titipan"]:checked'))
-        .map(checkbox => checkbox.value);
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitButton.disabled = true;
+            submitButton.textContent = 'Mengirim...';
+            messageDiv.textContent = '';
 
-      if (selectedItems.length === 0) {
-        messageDiv.textContent = 'Pilih minimal satu titipan!';
-        messageDiv.style.color = 'red';
-        submitButton.disabled = false;
-        submitButton.textContent = 'Kirim Titipan';
-        return;
-      }
+            const selectedItems = Array.from(document.querySelectorAll('input[name="titipan"]:checked')).map(cb => cb.value);
+            if (selectedItems.length === 0) {
+                messageDiv.textContent = 'Pilih minimal satu titipan!';
+                messageDiv.style.color = 'red';
+                submitButton.disabled = false;
+                submitButton.textContent = 'Kirim Titipan';
+                return;
+            }
 
-      const data = {
-        nama: nama,
-        titipan: selectedItems.join(', '), // Gabungkan jadi satu string
-        opsiLain: opsiLain
-      };
+            const data = {
+                nama: document.getElementById('nama').value,
+                titipan: selectedItems.join(', '),
+                opsiLain: document.getElementById('opsi-lain').value,
+                buktiTransfer: document.getElementById('bukti-transfer').value
+            };
 
-  try {
-        const response = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          // mode: 'cors' BISA DIHAPUS, TAPI DIBIARKAN JUGA TIDAK MASALAH
-          body: JSON.stringify(data), // Langsung kirim body-nya
+            try {
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+                const result = await response.json();
+                if (result.status === "success") {
+                    messageDiv.textContent = result.message;
+                    messageDiv.style.color = 'green';
+                    form.reset();
+                    await fetchOrders();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                messageDiv.textContent = 'Gagal mengirim titipan: ' + error.message;
+                messageDiv.style.color = 'red';
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Kirim Titipan';
+            }
         });
 
-        const result = await response.json();
+        // Event listener untuk Accordion dan Tombol Edit/Save
+        listContainer.addEventListener('click', async function(e) {
+            // Logika Accordion
+            if (e.target.classList.contains('accordion')) {
+                e.target.classList.toggle('active');
+                const panel = e.target.nextElementSibling;
+                panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";
+            }
+            // Logika Tombol Edit
+            if (e.target.classList.contains('edit-btn')) {
+                const card = e.target.closest('.order-card');
+                const opsiP = card.querySelector('.editable-opsi span');
+                const buktiP = card.querySelector('.editable-bukti span');
+                const buktiLink = buktiP.querySelector('a');
 
-        if (result.status === "success") {
-          messageDiv.textContent = result.message;
-          messageDiv.style.color = 'green';
-          form.reset(); // Kosongkan form setelah berhasil
-          await fetchOrders(); // Ambil data terbaru
-        } else {
-          throw new Error(result.message);
-        }
+                opsiP.innerHTML = `<input type="text" value="${opsiP.textContent === '-' ? '' : opsiP.textContent}" style="width: 80%;">`;
+                buktiP.innerHTML = `<input type="url" value="${buktiLink ? buktiLink.href : ''}" style="width: 80%;">`;
+                
+                e.target.textContent = 'Simpan';
+                e.target.classList.remove('edit-btn');
+                e.target.classList.add('save-btn');
+            } 
+            // Logika Tombol Save
+            else if (e.target.classList.contains('save-btn')) {
+                e.target.disabled = true;
+                e.target.textContent = '...';
 
-      } catch (error) {
-        console.error('Error submitting form:', error);
-        messageDiv.textContent = 'Gagal mengirim titipan. Coba lagi.';
-        messageDiv.style.color = 'red';
-      } finally {
-        submitButton.disabled = false;
-        submitButton.textContent = 'Kirim Titipan';
-      }
-    });
+                const card = e.target.closest('.order-card');
+                const id = card.dataset.id;
+                const newOpsiLain = card.querySelector('.editable-opsi input').value;
+                const newBuktiTransfer = card.querySelector('.editable-bukti input').value;
 
-    // Panggil fungsi saat halaman pertama kali dimuat
-    document.addEventListener('DOMContentLoaded', () => {
-      renderMenu();
-      fetchOrders();
-    });
-  </script>
+                const data = {
+                    action: 'update',
+                    id: id,
+                    opsiLain: newOpsiLain,
+                    buktiTransfer: newBuktiTransfer
+                };
 
+                try {
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+                    const result = await response.json();
+                    if (result.status !== 'success') throw new Error(result.message);
+                    await fetchOrders(); // Refresh list untuk menampilkan data terbaru
+                } catch (error) {
+                    alert('Gagal menyimpan perubahan: ' + error.message);
+                    // Kembalikan tombol ke state edit jika gagal
+                    e.target.disabled = false;
+                    e.target.textContent = 'Simpan';
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMenu();
+            fetchOrders();
+        });
+    </script>
 </body>
-
 </html>
