@@ -147,7 +147,7 @@
                     const buktiLink = order['Bukti Transfer'] ? `<a href="${order['Bukti Transfer']}" target="_blank" rel="noopener noreferrer">Lihat Bukti</a>` : 'Belum ada';
                     const displayTime = new Date(order.Timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                     // BARU: Tambahkan tampilan Total Pesanan & format mata uang
-                    const totalPesananFormatted = order['Total Pesanan'] ? `Rp ${parseInt(order['Total Pesanan']).toLocaleString('id-ID')}` : 'Rp 0';
+                    const totalPesananFormatted = order['Total Pesanan'] ? `${parseInt(order['Total Pesanan']).toLocaleString('id-ID')}` : '-';
 
                     html += `
                         <div class="order-card" data-id="${order.ID}">
