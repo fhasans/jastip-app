@@ -50,11 +50,30 @@
             --menu-item-bg: #333; --accordion-bg: #383838; --accordion-hover: #444;
         }
         .dark-mode .finance-info { background-color: #333; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #fff; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 400px; border-radius: 10px; text-align: center; position: relative; animation: fadeIn 0.3s; }
+        .dark-mode .modal-content { background-color: #2a2a2a; }
+        .modal-content img { max-width: 100%; height: auto; border-radius: 8px; }
+        .close-btn { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; }
+        .close-btn:hover, .close-btn:focus { color: #000; text-decoration: none; cursor: pointer; }
+        .dark-mode .close-btn:hover, .dark-mode .close-btn:focus { color: #fff; }
+        @keyframes fadeIn { from {opacity: 0; transform: scale(0.9);} to {opacity: 1; transform: scale(1);} }
     </style>
 </head>
 <body>
+    <div id="qris-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">×</span>
+            <h2>Scan untuk Membayar</h2>
+            <p>Gunakan aplikasi GoPay, OVO, DANA, BCA Mobile, dll.</p>
+            <img src="QRIS_GOPAY" alt="QRIS Code">
+            <p style="margin-top: 15px;"><strong>a/n FHasan</strong></p>
+        </div>
+    </div>
+
     <div class="container">
         <h1 id="main-title">📝 List Jastip Terpadu</h1>
+        <button id="show-qris-btn" style="width: 100%; margin-bottom: 20px; background-color: #16a085;">Bayar dengan QRIS</button>
         <form id="jastip-form">
             <div class="form-group"><label for="nama">Nama Kamu:</label><input type="text" id="nama" name="nama" placeholder="Contoh: Budi" required></div>
             <div class="form-group" id="menu-kategori-container"><label>Pilih Titipan (boleh lebih dari satu):</label></div>
@@ -88,13 +107,14 @@
         const listContainer = document.getElementById('list-container');
         const loadingDiv = document.getElementById('loading');
         const menuKategoriContainer = document.getElementById('menu-kategori-container');
+        const qrisModal = document.getElementById('qris-modal');
+        const showQrisBtn = document.getElementById('show-qris-btn');
+        const closeBtn = document.querySelector('.close-btn');
 
-        // FUNGSI LENGKAP RENDER MENU
         function renderMenu() {
             let html = '';
             for (const kategori in menuItems) {
-                html += `<h3 class="category-title">${kategori}</h3>`;
-                html += `<div class="menu-grid">`;
+                html += `<h3 class="category-title">${kategori}</h3><div class="menu-grid">`;
                 menuItems[kategori].forEach(item => {
                     const id = item.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
                     html += `<div class="menu-item"><input type="checkbox" id="${id}" name="titipan" value="${item}"><label for="${id}">${item}</label></div>`;
@@ -104,7 +124,6 @@
             menuKategoriContainer.innerHTML += html;
         }
 
-        // FUNGSI LENGKAP FETCH ORDERS
         async function fetchOrders() {
             const openAccordions = new Set();
             document.querySelectorAll('.accordion.active').forEach(acc => openAccordions.add(acc.dataset.date));
@@ -133,84 +152,72 @@
             }
         }
 
-        // FUNGSI LENGKAP DISPLAY ORDERS
-   // GANTI SELURUH FUNGSI displayOrders DENGAN INI
-function displayOrders(orders) {
-    const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
-    
-    const groupedByDate = orders.reduce((acc, order) => {
-        const date = order.Timestamp.substring(0, 10);
-        if (!acc[date]) acc[date] = [];
-        acc[date].push(order);
-        return acc;
-    }, {});
-
-    const sortedDates = Object.keys(groupedByDate).sort((a, b) => new Date(b) - new Date(a));
-    let html = '';
-    sortedDates.forEach(date => {
-        const displayDate = new Date(date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        const totalItems = groupedByDate[date].reduce((sum, order) => sum + parseInt(order['Total Pesanan'] || 0, 10), 0);
-        html += `<button class="accordion" data-date="${date}">${displayDate} (Total ${totalItems} Item)</button><div class="panel">`;
-        
-        groupedByDate[date].sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
-        
-        groupedByDate[date].forEach(order => {
-            const displayTime = new Date(order.Timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-            
-            const titipanItems = order.Titipan ? order.Titipan.split(', ') : [];
-            const selesaiItems = order['Item Selesai'] ? order['Item Selesai'].split(',') : [];
-            const dibatalkanItems = order['Item Dibatalkan'] ? order['Item Dibatalkan'].split(',') : [];
-
-            // --- Kalkulasi Keuangan (VERSI BARU YANG BENAR) ---
-            const totalPesanan = parseInt(order['Total Pesanan'] || 0);
-            const jumlahItemSelesai = selesaiItems.length;
-
-            const totalAwal = totalPesanan * HARGA_PER_ITEM;
-            const totalAkhir = jumlahItemSelesai * HARGA_PER_ITEM;
-            const jumlahRefund = totalAwal - totalAkhir;
-
-            let checklistHtml = '<div class="item-checklist">';
-            titipanItems.forEach(item => {
-                const isChecked = selesaiItems.includes(item);
-                const isCancelled = dibatalkanItems.includes(item);
-                const isDisabled = !isAdminMode || isCancelled;
-                
-                checklistHtml += `
-                    <div class="checklist-item ${isCancelled ? 'item-cancelled' : ''}">
-                        <div>
-                            <input type="checkbox" class="item-status-cb" value="${item}" ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
-                            <label>${item}</label>
-                        </div>
-                        ${isAdminMode && !isCancelled ? `<button class="cancel-btn" data-item="${item}">X</button>` : ''}
-                    </div>
-                `;
+        function displayOrders(orders) {
+            const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+            const groupedByDate = orders.reduce((acc, order) => {
+                const date = order.Timestamp.substring(0, 10);
+                if (!acc[date]) acc[date] = [];
+                acc[date].push(order);
+                return acc;
+            }, {});
+            const sortedDates = Object.keys(groupedByDate).sort((a, b) => new Date(b) - new Date(a));
+            let html = '';
+            sortedDates.forEach(date => {
+                const displayDate = new Date(date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                const totalItems = groupedByDate[date].reduce((sum, order) => sum + parseInt(order['Total Pesanan'] || 0, 10), 0);
+                html += `<button class="accordion" data-date="${date}">${displayDate} (Total ${totalItems} Item)</button><div class="panel">`;
+                groupedByDate[date].sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
+                groupedByDate[date].forEach(order => {
+                    const displayTime = new Date(order.Timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    const titipanItems = order.Titipan ? order.Titipan.split(', ') : [];
+                    const selesaiItems = order['Item Selesai'] ? order['Item Selesai'].split(',') : [];
+                    const dibatalkanItems = order['Item Dibatalkan'] ? order['Item Dibatalkan'].split(',') : [];
+                    const totalPesanan = parseInt(order['Total Pesanan'] || 0);
+                    const jumlahItemSelesai = selesaiItems.length;
+                    const totalAwal = totalPesanan * HARGA_PER_ITEM;
+                    const totalAkhir = jumlahItemSelesai * HARGA_PER_ITEM;
+                    const jumlahRefund = totalAwal - totalAkhir;
+                    let checklistHtml = '<div class="item-checklist">';
+                    titipanItems.forEach(item => {
+                        const isChecked = selesaiItems.includes(item);
+                        const isCancelled = dibatalkanItems.includes(item);
+                        const isDisabled = !isAdminMode || isCancelled;
+                        checklistHtml += `<div class="checklist-item ${isCancelled ? 'item-cancelled' : ''}"><div><input type="checkbox" class="item-status-cb" value="${item}" ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}><label>${item}</label></div>${isAdminMode && !isCancelled ? `<button class="cancel-btn" data-item="${item}">X</button>` : ''}</div>`;
+                    });
+                    checklistHtml += '</div>';
+                    html += `<div class="order-card" data-id="${order.ID}"><button class="edit-btn">Edit</button><h3>${order.Nama}</h3><p><strong>Titipan:</strong></p>${checklistHtml}<hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;"><div class="finance-info"><p>Total Awal (Pesanan: ${totalPesanan} item): <strong>${formatRupiah(totalAwal)}</strong></p><p>Total Akhir (Didapat: ${jumlahItemSelesai} item): <strong>${formatRupiah(totalAkhir)}</strong></p><p style="color: #e74c3c;">Jumlah Refund: <strong>${formatRupiah(jumlahRefund)}</strong></p></div><hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;"><p class="editable-opsi"><strong>Opsi Lain:</strong> <span>${order['Opsi Lain'] || '-'}</span></p><p class="editable-total" style="display:none;"><strong>Jumlah Item:</strong> <span>${order['Total Pesanan'] || '0'}</span></p><p class="editable-bukti"><strong>Bukti TF:</strong> <span>${order['Bukti Transfer'] ? `<a href="${order['Bukti Transfer']}" target="_blank">Lihat Bukti</a>` : 'Belum ada'}</span></p><p class="timestamp">Dipesan jam: ${displayTime}</p></div>`;
+                });
+                html += `</div>`;
             });
-            checklistHtml += '</div>';
-            
-            html += `
-                <div class="order-card" data-id="${order.ID}">
-                    <button class="edit-btn">Edit</button>
-                    <h3>${order.Nama}</h3>
-                    <p><strong>Titipan:</strong></p>${checklistHtml} 
-                    <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
-                    <div class="finance-info">
-                        <p>Total Awal (Pesanan: ${totalPesanan} item): <strong>${formatRupiah(totalAwal)}</strong></p>
-                        <p>Total Akhir (Didapat: ${jumlahItemSelesai} item): <strong>${formatRupiah(totalAkhir)}</strong></p>
-                        <p style="color: #e74c3c;">Jumlah Refund (Jika Salah Satu atau Semua tidak ada): <strong>${formatRupiah(jumlahRefund)}</strong></p>
-                    </div>
-                    <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
-                    <p class="editable-opsi"><strong>Opsi Lain:</strong> <span>${order['Opsi Lain'] || '-'}</span></p>
-                    <p class="editable-total" style="display:none;"><strong>Jumlah Item:</strong> <span>${order['Total Pesanan'] || '0'}</span></p>
-                    <p class="editable-bukti"><strong>Bukti TF:</strong> <span>${order['Bukti Transfer'] ? `<a href="${order['Bukti Transfer']}" target="_blank">Lihat Bukti</a>` : 'Belum ada'}</span></p>
-                    <p class="timestamp">Dipesan jam: ${displayTime}</p>
-                </div>`;
-        });
-        html += `</div>`;
-    });
-    listContainer.innerHTML = html || '<p>Belum ada titipan.</p>';
-}
+            listContainer.innerHTML = html || '<p>Belum ada titipan.</p>';
+        }
 
-        // FUNGSI LENGKAP EVENT LISTENER
+        showQrisBtn.onclick = function() { qrisModal.style.display = "block"; }
+        closeBtn.onclick = function() { qrisModal.style.display = "none"; }
+        window.onclick = function(event) { if (event.target == qrisModal) { qrisModal.style.display = "none"; } }
+
+        let clickCount = 0;
+        document.getElementById('main-title').addEventListener('click', () => {
+            clickCount++;
+            if (clickCount >= 5) {
+                const pass = prompt('Masukkan password admin:');
+                if (pass === ADMIN_PASSWORD) {
+                    alert('Mode Admin Aktif!');
+                    isAdminMode = true;
+                    document.body.classList.add('dark-mode');
+                    sessionStorage.setItem('isAdmin', 'true');
+                    fetchOrders();
+                } else { alert('Password salah!'); }
+                clickCount = 0;
+            }
+            setTimeout(() => { clickCount = 0; }, 2000);
+        });
+
+        if (sessionStorage.getItem('isAdmin') === 'true') {
+            isAdminMode = true;
+            document.body.classList.add('dark-mode');
+        }
+
         listContainer.addEventListener('click', async function(e) {
             if (e.target.classList.contains('accordion')) {
                 e.target.classList.toggle('active');
@@ -220,75 +227,41 @@ function displayOrders(orders) {
             else if (e.target.classList.contains('cancel-btn')) {
                 const itemToCancel = e.target.dataset.item;
                 if (!confirm(`Anda yakin ingin membatalkan item: "${itemToCancel}"?`)) return;
-
                 const card = e.target.closest('.order-card');
                 const orderId = card.dataset.id;
-                
                 e.target.parentElement.classList.add('item-cancelled');
                 e.target.parentElement.querySelector('input[type="checkbox"]').disabled = true;
                 e.target.style.display = 'none';
-
                 let currentCancelled = Array.from(card.querySelectorAll('.item-cancelled label')).map(label => label.textContent);
-                
                 try {
-                    await fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: 'cancel_item',
-                            id: orderId,
-                            cancelledItems: currentCancelled
-                        })
-                    });
+                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'cancel_item', id: orderId, cancelledItems: currentCancelled }) });
                     await fetchOrders();
                 } catch (error) {
                     console.error('Gagal membatalkan item:', error);
                     alert('Gagal membatalkan item.');
                 }
             }
-          // GANTI DENGAN BLOK BARU INI
-else if (e.target.classList.contains('item-status-cb')) {
-    const card = e.target.closest('.order-card');
-    const orderId = card.dataset.id;
-    const checkboxes = card.querySelectorAll('.item-status-cb:checked');
-    const checkedItems = Array.from(checkboxes).map(cb => cb.value);
-
-    // --- PERBAIKAN UTAMA: Lakukan kalkulasi ulang secara lokal ---
-    const financeInfo = card.querySelector('.finance-info');
-    // Ambil total pesanan dari elemen tersembunyi di kartu
-    const totalPesanan = parseInt(card.querySelector('.editable-total span').textContent || 0);
-    const jumlahItemSelesai = checkedItems.length;
-
-    const totalAwal = totalPesanan * HARGA_PER_ITEM;
-    const totalAkhir = jumlahItemSelesai * HARGA_PER_ITEM;
-    const jumlahRefund = totalAwal - totalAkhir;
-    
-    const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
-
-    // Update tampilan kotak info keuangan secara instan
-    financeInfo.innerHTML = `
-        <p>Total Awal (Pesanan: ${totalPesanan} item): <strong>${formatRupiah(totalAwal)}</strong></p>
-        <p>Total Akhir (Didapat: ${jumlahItemSelesai} item): <strong>${formatRupiah(totalAkhir)}</strong></p>
-        <p style="color: #e74c3c;">Jumlah Refund/Deposit (Jika Salah Satu atau Semua tidak ada): <strong>${formatRupiah(jumlahRefund)}</strong></p>
-    `;
-    // --- AKHIR PERBAIKAN ---
-
-    try {
-        // Kirim update ke backend di latar belakang
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'update_status',
-                id: orderId,
-                checkedItems: checkedItems
-            })
-        });
-    } catch (error) {
-        console.error('Gagal update status item:', error);
-        alert('Gagal menyimpan status centang. Coba refresh halaman.');
-        // Jika gagal, refresh untuk mendapatkan state yang benar dari server
-        fetchOrders();
-    }
-}
+            else if (e.target.classList.contains('item-status-cb')) {
+                const card = e.target.closest('.order-card');
+                const orderId = card.dataset.id;
+                const checkboxes = card.querySelectorAll('.item-status-cb:checked');
+                const checkedItems = Array.from(checkboxes).map(cb => cb.value);
+                const financeInfo = card.querySelector('.finance-info');
+                const totalPesanan = parseInt(card.querySelector('.editable-total span').textContent || 0);
+                const jumlahItemSelesai = checkedItems.length;
+                const totalAwal = totalPesanan * HARGA_PER_ITEM;
+                const totalAkhir = jumlahItemSelesai * HARGA_PER_ITEM;
+                const jumlahRefund = totalAwal - totalAkhir;
+                const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+                financeInfo.innerHTML = `<p>Total Awal (Pesanan: ${totalPesanan} item): <strong>${formatRupiah(totalAwal)}</strong></p><p>Total Akhir (Didapat: ${jumlahItemSelesai} item): <strong>${formatRupiah(totalAkhir)}</strong></p><p style="color: #e74c3c;">Jumlah Refund: <strong>${formatRupiah(jumlahRefund)}</strong></p>`;
+                try {
+                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'update_status', id: orderId, checkedItems: checkedItems }) });
+                } catch (error) {
+                    console.error('Gagal update status item:', error);
+                    alert('Gagal menyimpan status centang. Coba refresh halaman.');
+                    fetchOrders();
+                }
+            }
             else if (e.target.classList.contains('edit-btn')) {
                 const card = e.target.closest('.order-card');
                 const opsiP = card.querySelector('.editable-opsi span');
@@ -297,6 +270,7 @@ else if (e.target.classList.contains('item-status-cb')) {
                 const buktiLink = buktiP.querySelector('a');
                 const currentTotal = totalP.textContent.replace(/[^0-9]/g, '');
                 opsiP.innerHTML = `<input type="text" value="${opsiP.textContent === '-' ? '' : opsiP.textContent}">`;
+                totalP.parentElement.style.display = 'block';
                 totalP.innerHTML = `<input type="number" value="${currentTotal}">`;
                 buktiP.innerHTML = `<input type="url" value="${buktiLink ? buktiLink.href : ''}">`;
                 e.target.textContent = 'Simpan';
@@ -324,30 +298,6 @@ else if (e.target.classList.contains('item-status-cb')) {
             }
         });
         
-        // FUNGSI LENGKAP ADMIN MODE
-        let clickCount = 0;
-        document.getElementById('main-title').addEventListener('click', () => {
-            clickCount++;
-            if (clickCount >= 5) {
-                const pass = prompt('Masukkan password admin:');
-                if (pass === ADMIN_PASSWORD) {
-                    alert('Mode Admin Aktif!');
-                    isAdminMode = true;
-                    document.body.classList.add('dark-mode');
-                    sessionStorage.setItem('isAdmin', 'true');
-                    fetchOrders();
-                } else { alert('Password salah!'); }
-                clickCount = 0;
-            }
-            setTimeout(() => { clickCount = 0; }, 2000);
-        });
-
-        if (sessionStorage.getItem('isAdmin') === 'true') {
-            isAdminMode = true;
-            document.body.classList.add('dark-mode');
-        }
-
-        // FUNGSI LENGKAP FORM SUBMIT
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = document.getElementById('submit-button');
@@ -383,7 +333,6 @@ else if (e.target.classList.contains('item-status-cb')) {
             }
         });
 
-        // FUNGSI LENGKAP DOMCONTENTLOADED
         document.addEventListener('DOMContentLoaded', () => {
             renderMenu();
             fetchOrders();
