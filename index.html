@@ -196,7 +196,7 @@ function displayOrders(orders) {
                     <div class="finance-info">
                         <p>Total Awal (Pesanan: ${totalPesanan} item): <strong>${formatRupiah(totalAwal)}</strong></p>
                         <p>Total Akhir (Didapat: ${jumlahItemSelesai} item): <strong>${formatRupiah(totalAkhir)}</strong></p>
-                        <p style="color: #e74c3c;">Jumlah Refund: <strong>${formatRupiah(jumlahRefund)}</strong></p>
+                        <p style="color: #e74c3c;">Jumlah Refund (Jika Salah Satu atau Semua tidak ada): <strong>${formatRupiah(jumlahRefund)}</strong></p>
                     </div>
                     <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
                     <p class="editable-opsi"><strong>Opsi Lain:</strong> <span>${order['Opsi Lain'] || '-'}</span></p>
