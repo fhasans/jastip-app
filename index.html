@@ -14,7 +14,7 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; transition: background-color 0.3s, color 0.3s; }
         .container { max-width: 800px; margin: 0 auto; background-color: var(--container-bg); padding: 25px 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
         h1, h2, h3 { color: var(--header-color); }
-        h1 { cursor: pointer; } /* Membuat judul bisa diklik untuk mode admin */
+        h1 { cursor: pointer; }
         h3.category-title { border-bottom: 2px solid var(--menu-item-bg); padding-bottom: 10px; margin-top: 30px; }
         form { display: flex; flex-direction: column; gap: 20px; }
         .form-group { display: flex; flex-direction: column; }
@@ -51,7 +51,6 @@
 <body>
     <div class="container">
         <h1 id="main-title">📝 List Jastip Terpadu</h1>
-        <!-- Form dan elemen lainnya tetap sama -->
         <form id="jastip-form">
             <div class="form-group"><label for="nama">Nama Kamu:</label><input type="text" id="nama" name="nama" placeholder="Contoh: Budi" required></div>
             <div class="form-group" id="menu-kategori-container"><label>Pilih Titipan (boleh lebih dari satu):</label></div>
@@ -68,11 +67,11 @@
         </div>
     </div>
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw0W5Nnm-u0DSjdvyBRZDoM2Fy9lT9yOHIVCt7FT8QJW-_aDEsHvYVYDghTAnmcGDd9/exec"; // <-- JANGAN LUPA GANTI INI
-        const ADMIN_PASSWORD = "masukaja123"; // <-- GANTI PASSWORD ADMIN DI SINI
+        // <!-- JANGAN LUPA GANTI URL INI DENGAN URL BARU DARI LANGKAH 3 -->
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfm8wkKEGxOx0CGdUOt6_D-YpmDqEQRlqnqOUbbdvk6qtWh-N_Mu_Vy9Up-hxigX7HDg/exec";
+        const ADMIN_PASSWORD = "RAHASIA123"; // <-- GANTI PASSWORD ADMIN DI SINI JIKA PERLU
         let isAdminMode = false;
         
-        // ... (kode menuItems tetap sama)
         const menuItems = {
             "Nasi & Lauk Utama": ["Pernasian (random)", "Nasi bakar", "Nasi kuning", "Nasi goreng", "Nasi bali", "Sate ayam", "Taichan", "Cakalang", "Katsu", "Chicken steak"],
             "Pasta & Makanan Barat": ["Lasagna", "Spaghetti Carbonara", "Spaghetti Bolognese", "Spaghetti Aglio Olio", "Spaghetti Mentai", "Macaroni Mentai", "Macaroni Schotel", "Burger", "Hotdog", "Zuppa soup", "Sandwich"],
@@ -81,14 +80,52 @@
             "Dessert & Minuman": ["Grilled chicken salad", "Salad sayur", "Salad buah", "Jasuke", "Setup roti (pandan/coklat)", "Bubur campur manis", "Pudding", "Buko pandan", "Buah potong", "Manggo sticky rice"]
         };
 
-        // ... (semua konstanta elemen DOM tetap sama)
         const form = document.getElementById('jastip-form');
         const listContainer = document.getElementById('list-container');
         const loadingDiv = document.getElementById('loading');
+        const menuKategoriContainer = document.getElementById('menu-kategori-container');
 
-        function renderMenu() { /* ... (kode renderMenu tetap sama) ... */ }
+        function renderMenu() {
+            let html = '';
+            for (const kategori in menuItems) {
+                html += `<h3 class="category-title">${kategori}</h3>`;
+                html += `<div class="menu-grid">`;
+                menuItems[kategori].forEach(item => {
+                    const id = item.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                    html += `<div class="menu-item"><input type="checkbox" id="${id}" name="titipan" value="${item}"><label for="${id}">${item}</label></div>`;
+                });
+                html += `</div>`;
+            }
+            menuKategoriContainer.innerHTML += html;
+        }
 
-        async function fetchOrders() { /* ... (kode fetchOrders tetap sama, tapi akan memanggil displayOrders yang baru) ... */ }
+        async function fetchOrders() {
+            const openAccordions = new Set();
+            document.querySelectorAll('.accordion.active').forEach(acc => openAccordions.add(acc.dataset.date));
+            loadingDiv.style.display = 'block';
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const result = await response.json();
+                listContainer.innerHTML = '';
+                if (result.data && result.data.length > 0) {
+                    displayOrders(result.data);
+                } else {
+                    listContainer.innerHTML = '<p>Belum ada titipan. Jadilah yang pertama!</p>';
+                }
+                document.querySelectorAll('.accordion').forEach(acc => {
+                    if (openAccordions.has(acc.dataset.date)) {
+                        acc.classList.add('active');
+                        const panel = acc.nextElementSibling;
+                        panel.style.maxHeight = panel.scrollHeight + "px";
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                listContainer.innerHTML = '<p style="color: red;">Gagal memuat daftar titipan.</p>';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
 
         function displayOrders(orders) {
             const groupedByDate = orders.reduce((acc, order) => {
@@ -109,45 +146,32 @@
                 
                 groupedByDate[date].forEach(order => {
                     const displayTime = new Date(order.Timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                    
-                    // --- LOGIKA BARU UNTUK CHECKBOX PER ITEM ---
                     const titipanItems = order.Titipan ? order.Titipan.split(', ') : [];
                     const selesaiItems = order['Item Selesai'] ? order['Item Selesai'].split(',') : [];
-                    
                     let checklistHtml = '<div class="item-checklist">';
                     titipanItems.forEach(item => {
                         const isChecked = selesaiItems.includes(item);
                         const isDisabled = !isAdminMode;
-                        checklistHtml += `
-                            <div>
-                                <input type="checkbox" class="item-status-cb" value="${item}" ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
-                                <label>${item}</label>
-                            </div>
-                        `;
+                        checklistHtml += `<div><input type="checkbox" class="item-status-cb" value="${item}" ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}><label>${item}</label></div>`;
                     });
                     checklistHtml += '</div>';
-                    // --- AKHIR LOGIKA BARU ---
-
                     html += `
                         <div class="order-card" data-id="${order.ID}">
                             <button class="edit-btn">Edit</button>
                             <h3>${order.Nama}</h3>
-                            <p><strong>Titipan:</strong></p>
-                            ${checklistHtml} 
+                            <p><strong>Titipan:</strong></p>${checklistHtml} 
                             <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
                             <p class="editable-opsi"><strong>Opsi Lain:</strong> <span>${order['Opsi Lain'] || '-'}</span></p>
                             <p class="editable-total"><strong>Jumlah Item:</strong> <span>${order['Total Pesanan'] || '0'}</span></p>
                             <p class="editable-bukti"><strong>Bukti TF:</strong> <span>${order['Bukti Transfer'] ? `<a href="${order['Bukti Transfer']}" target="_blank">Lihat Bukti</a>` : 'Belum ada'}</span></p>
                             <p class="timestamp">Dipesan jam: ${displayTime}</p>
-                        </div>
-                    `;
+                        </div>`;
                 });
                 html += `</div>`;
             });
             listContainer.innerHTML = html || '<p>Belum ada titipan.</p>';
         }
 
-        // --- LOGIKA BARU UNTUK ADMIN MODE ---
         let clickCount = 0;
         document.getElementById('main-title').addEventListener('click', () => {
             clickCount++;
@@ -157,65 +181,111 @@
                     alert('Mode Admin Aktif!');
                     isAdminMode = true;
                     document.body.classList.add('dark-mode');
-                    sessionStorage.setItem('isAdmin', 'true'); // Simpan status admin di session
-                    fetchOrders(); // Render ulang daftar dengan checkbox yang aktif
-                } else {
-                    alert('Password salah!');
-                }
+                    sessionStorage.setItem('isAdmin', 'true');
+                    fetchOrders();
+                } else { alert('Password salah!'); }
                 clickCount = 0;
             }
-            setTimeout(() => { clickCount = 0; }, 2000); // Reset counter setelah 2 detik
+            setTimeout(() => { clickCount = 0; }, 2000);
         });
 
-        // Cek jika status admin sudah ada di session saat reload
         if (sessionStorage.getItem('isAdmin') === 'true') {
             isAdminMode = true;
             document.body.classList.add('dark-mode');
         }
-        // --- AKHIR LOGIKA ADMIN MODE ---
 
         listContainer.addEventListener('click', async function(e) {
-            // --- LOGIKA BARU UNTUK MENYIMPAN STATUS CHECKBOX ---
-            if (e.target.classList.contains('item-status-cb')) {
+            if (e.target.classList.contains('accordion')) {
+                e.target.classList.toggle('active');
+                const panel = e.target.nextElementSibling;
+                panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";
+            }
+            else if (e.target.classList.contains('item-status-cb')) {
                 const card = e.target.closest('.order-card');
                 const orderId = card.dataset.id;
                 const checkboxes = card.querySelectorAll('.item-status-cb:checked');
                 const checkedItems = Array.from(checkboxes).map(cb => cb.value);
-
                 try {
-                    await fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: 'update_status',
-                            id: orderId,
-                            checkedItems: checkedItems
-                        })
-                    });
-                    // Tidak perlu fetchOrders() agar tidak mengganggu, status sudah tersimpan
+                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'update_status', id: orderId, checkedItems: checkedItems }) });
                 } catch (error) {
                     console.error('Gagal update status item:', error);
                     alert('Gagal menyimpan status centang.');
                 }
             }
-            // --- AKHIR LOGIKA CHECKBOX ---
-
-            if (e.target.classList.contains('edit-btn')) { /* ... (kode edit tetap sama) ... */ } 
+            else if (e.target.classList.contains('edit-btn')) {
+                const card = e.target.closest('.order-card');
+                const opsiP = card.querySelector('.editable-opsi span');
+                const totalP = card.querySelector('.editable-total span');
+                const buktiP = card.querySelector('.editable-bukti span');
+                const buktiLink = buktiP.querySelector('a');
+                const currentTotal = totalP.textContent.replace(/[^0-9]/g, '');
+                opsiP.innerHTML = `<input type="text" value="${opsiP.textContent === '-' ? '' : opsiP.textContent}">`;
+                totalP.innerHTML = `<input type="number" value="${currentTotal}">`;
+                buktiP.innerHTML = `<input type="url" value="${buktiLink ? buktiLink.href : ''}">`;
+                e.target.textContent = 'Simpan';
+                e.target.classList.remove('edit-btn'); e.target.classList.add('save-btn');
+            } 
             else if (e.target.classList.contains('save-btn')) {
+                e.target.disabled = true; e.target.textContent = '...';
                 const card = e.target.closest('.order-card');
                 const data = {
-                    action: 'update_details', // Kirim action yang spesifik
+                    action: 'update_details',
                     id: card.dataset.id,
                     opsiLain: card.querySelector('.editable-opsi input').value,
                     totalPesanan: card.querySelector('.editable-total input').value,
                     buktiTransfer: card.querySelector('.editable-bukti input').value
                 };
-                // ... (sisa logika save tetap sama)
+                try {
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+                    const result = await response.json();
+                    if (result.status !== 'success') throw new Error(result.message);
+                    await fetchOrders();
+                } catch (error) {
+                    alert('Gagal menyimpan perubahan: ' + error.message);
+                    e.target.disabled = false; e.target.textContent = 'Simpan';
+                }
             }
         });
 
-        // ... (kode event listener untuk form submit dan DOMContentLoaded tetap sama)
-        // Pastikan untuk mengisi kembali kode yang di-comment "(...)" dengan kode lengkap dari versi sebelumnya.
-        // Saya sengaja meringkasnya di sini agar fokus pada perubahan.
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = document.getElementById('submit-button');
+            submitButton.disabled = true; submitButton.textContent = 'Mengirim...';
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = '';
+            const selectedItems = Array.from(document.querySelectorAll('input[name="titipan"]:checked')).map(cb => cb.value);
+            if (selectedItems.length === 0) {
+                messageDiv.textContent = 'Pilih minimal satu titipan!'; messageDiv.style.color = 'red';
+                submitButton.disabled = false; submitButton.textContent = 'Kirim Titipan';
+                return;
+            }
+            const data = {
+                nama: document.getElementById('nama').value,
+                titipan: selectedItems.join(', '),
+                opsiLain: document.getElementById('opsi-lain').value,
+                totalPesanan: document.getElementById('total-pesanan').value,
+                buktiTransfer: document.getElementById('bukti-transfer').value
+            };
+            try {
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+                const result = await response.json();
+                if (result.status === "success") {
+                    messageDiv.textContent = result.message; messageDiv.style.color = 'green';
+                    form.reset();
+                    await fetchOrders();
+                } else { throw new Error(result.message); }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                messageDiv.textContent = 'Gagal mengirim titipan: ' + error.message; messageDiv.style.color = 'red';
+            } finally {
+                submitButton.disabled = false; submitButton.textContent = 'Kirim Titipan';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMenu();
+            fetchOrders();
+        });
     </script>
 </body>
 </html>
