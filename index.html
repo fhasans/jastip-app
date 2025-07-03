@@ -245,26 +245,50 @@ function displayOrders(orders) {
                     alert('Gagal membatalkan item.');
                 }
             }
-            else if (e.target.classList.contains('item-status-cb')) {
-                const card = e.target.closest('.order-card');
-                const orderId = card.dataset.id;
-                const checkboxes = card.querySelectorAll('.item-status-cb:checked');
-                const checkedItems = Array.from(checkboxes).map(cb => cb.value);
+          // GANTI DENGAN BLOK BARU INI
+else if (e.target.classList.contains('item-status-cb')) {
+    const card = e.target.closest('.order-card');
+    const orderId = card.dataset.id;
+    const checkboxes = card.querySelectorAll('.item-status-cb:checked');
+    const checkedItems = Array.from(checkboxes).map(cb => cb.value);
 
-                try {
-                    await fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: 'update_status',
-                            id: orderId,
-                            checkedItems: checkedItems
-                        })
-                    });
-                } catch (error) {
-                    console.error('Gagal update status item:', error);
-                    alert('Gagal menyimpan status centang.');
-                }
-            }
+    // --- PERBAIKAN UTAMA: Lakukan kalkulasi ulang secara lokal ---
+    const financeInfo = card.querySelector('.finance-info');
+    // Ambil total pesanan dari elemen tersembunyi di kartu
+    const totalPesanan = parseInt(card.querySelector('.editable-total span').textContent || 0);
+    const jumlahItemSelesai = checkedItems.length;
+
+    const totalAwal = totalPesanan * HARGA_PER_ITEM;
+    const totalAkhir = jumlahItemSelesai * HARGA_PER_ITEM;
+    const jumlahRefund = totalAwal - totalAkhir;
+    
+    const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+
+    // Update tampilan kotak info keuangan secara instan
+    financeInfo.innerHTML = `
+        <p>Total Awal (Pesanan: ${totalPesanan} item): <strong>${formatRupiah(totalAwal)}</strong></p>
+        <p>Total Akhir (Didapat: ${jumlahItemSelesai} item): <strong>${formatRupiah(totalAkhir)}</strong></p>
+        <p style="color: #e74c3c;">Jumlah Refund: <strong>${formatRupiah(jumlahRefund)}</strong></p>
+    `;
+    // --- AKHIR PERBAIKAN ---
+
+    try {
+        // Kirim update ke backend di latar belakang
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'update_status',
+                id: orderId,
+                checkedItems: checkedItems
+            })
+        });
+    } catch (error) {
+        console.error('Gagal update status item:', error);
+        alert('Gagal menyimpan status centang. Coba refresh halaman.');
+        // Jika gagal, refresh untuk mendapatkan state yang benar dari server
+        fetchOrders();
+    }
+}
             else if (e.target.classList.contains('edit-btn')) {
                 const card = e.target.closest('.order-card');
                 const opsiP = card.querySelector('.editable-opsi span');
