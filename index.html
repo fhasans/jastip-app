@@ -1,115 +1,504 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jastip Terpadu</title>
     <style>
         :root {
-            --bg-color: #f4f7f6; --container-bg: #fff; --text-color: #333; --header-color: #2c3e50;
-            --card-bg: #f9f9f9; --card-border: #eee; --card-border-left: #3498db;
-            --menu-item-bg: #ecf0f1; --accordion-bg: #34495e; --accordion-hover: #2c3e50;
-            --button-bg: #3498db; --button-hover: #2980b9; --edit-btn-bg: #95a5a6;
+            --bg-color: #f4f7f6;
+            --container-bg: #fff;
+            --text-color: #333;
+            --header-color: #2c3e50;
+            --card-bg: #f9f9f9;
+            --card-border: #eee;
+            --card-border-left: #3498db;
+            --menu-item-bg: #ecf0f1;
+            --accordion-bg: #34495e;
+            --accordion-hover: #2c3e50;
+            --button-bg: #3498db;
+            --button-hover: #2980b9;
+            --edit-btn-bg: #95a5a6;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; transition: background-color 0.3s, color 0.3s; }
-        .container { max-width: 800px; margin: 0 auto; background-color: var(--container-bg); padding: 25px 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        h1, h2, h3 { color: var(--header-color); }
-        h1 { cursor: pointer; } h3.category-title { border-bottom: 2px solid var(--menu-item-bg); padding-bottom: 10px; margin-top: 30px; }
-        form { display: flex; flex-direction: column; gap: 20px; }
-        .form-group { display: flex; flex-direction: column; }
-        label { margin-bottom: 8px; font-weight: 600; color: var(--header-color); }
-        input[type="text"], input[type="url"], input[type="number"] { padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; width: 100%; box-sizing: border-box; background-color: var(--container-bg); color: var(--text-color); }
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-        .menu-item { display: flex; align-items: center; background-color: var(--menu-item-bg); padding: 10px; border-radius: 5px; }
-        button { padding: 15px; background-color: var(--button-bg); color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background-color 0.3s; }
-        button:hover { background-color: var(--button-hover); }
-        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
-        #order-list { margin-top: 40px; }
-        .order-card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-left: 5px solid var(--card-border-left); padding: 15px; margin-bottom: 10px; border-radius: 5px; position: relative; }
-        .order-card h3 { margin-top: 0; color: #2980b9; }
-        .order-card p { margin: 8px 0; word-break: break-all; }
-        .order-card .timestamp { font-size: 0.8em; color: #7f8c8d; text-align: right; }
-        .edit-btn, .save-btn { font-size: 12px; padding: 5px 10px; position: absolute; top: 15px; right: 15px; background-color: var(--edit-btn-bg); }
-        .save-btn { background-color: #27ae60; }
-        .accordion { background-color: var(--accordion-bg); color: white; cursor: pointer; padding: 18px; width: 100%; border: none; text-align: left; outline: none; font-size: 18px; transition: 0.4s; margin-top: 10px; border-radius: 5px; }
-        .accordion.active, .accordion:hover { background-color: var(--accordion-hover); }
-        .accordion:after { content: '\\002B'; color: #fff; font-weight: bold; float: right; margin-left: 5px; }
-        .accordion.active:after { content: "\\2212"; }
-        .panel { padding: 18px; background-color: var(--container-bg); max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; border-radius: 0 0 5px 5px; border: 1px solid #ddd; border-top: none; }
-        .item-checklist { margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px; }
-        .item-checklist .checklist-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
-        .item-checklist label { font-weight: normal; }
-        .item-checklist input:disabled + label { color: #888; }
-        .item-cancelled label { text-decoration: line-through; color: #e74c3c; }
-        .cancel-btn { background-color: #e74c3c; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; line-height: 20px; text-align: center; cursor: pointer; padding: 0; }
-        .finance-info { background-color: #ecf0f1; padding: 10px; border-radius: 5px; margin-top: 15px; }
-        .finance-info p { margin: 5px 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            background-color: #fff;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #3498db;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .nav-link.active-link,
+        .nav-link:hover {
+            background-color: #ecf0f1;
+        }
+
+        .page-container {
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--container-bg);
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: var(--header-color);
+        }
+
+        h1 {
+            cursor: pointer;
+        }
+
+        h3.category-title {
+            border-bottom: 2px solid var(--menu-item-bg);
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--header-color);
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="number"],
+        input[type="password"],
+        select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: var(--container-bg);
+            color: var(--text-color);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--menu-item-bg);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 15px;
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--button-hover);
+        }
+
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        #order-list {
+            margin-top: 40px;
+        }
+
+        .order-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-left: 5px solid var(--card-border-left);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .order-card h3 {
+            margin-top: 0;
+            color: #2980b9;
+        }
+
+        .order-card p {
+            margin: 8px 0;
+            word-break: break-all;
+        }
+
+        .order-card .timestamp {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            text-align: right;
+        }
+
+        .accordion {
+            background-color: var(--accordion-bg);
+            color: white;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 18px;
+            transition: 0.4s;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .accordion.active,
+        .accordion:hover {
+            background-color: var(--accordion-hover);
+        }
+
+        .accordion:after {
+            content: '\\002B';
+            color: #fff;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+
+        .accordion.active:after {
+            content: "\\2212";
+        }
+
+        .panel {
+            padding: 18px;
+            background-color: var(--container-bg);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            border-radius: 0 0 5px 5px;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+
+        .item-checklist {
+            margin-top: 15px;
+            border-top: 1px dashed #ccc;
+            padding-top: 10px;
+        }
+
+        .item-checklist .checklist-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .item-checklist label {
+            font-weight: normal;
+        }
+
+        .item-checklist input:disabled+label {
+            color: #888;
+        }
+
         .dark-mode {
-            --bg-color: #121212; --container-bg: #1e1e1e; --text-color: #e0e0e0; --header-color: #ffffff;
-            --card-bg: #2a2a2a; --card-border: #444; --card-border-left: #3498db;
-            --menu-item-bg: #333; --accordion-bg: #383838; --accordion-hover: #444;
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --header-color: #ffffff;
+            --card-bg: #2a2a2a;
+            --card-border: #444;
+            --card-border-left: #3498db;
+            --menu-item-bg: #333;
+            --accordion-bg: #383838;
+            --accordion-hover: #444;
         }
-        .dark-mode .finance-info { background-color: #333; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: #fff; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 400px; border-radius: 10px; text-align: center; position: relative; animation: fadeIn 0.3s; }
-        .dark-mode .modal-content { background-color: #2a2a2a; }
-        .modal-content img { max-width: 100%; height: auto; border-radius: 8px; }
-        .close-btn { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; }
-        .close-btn:hover, .close-btn:focus { color: #000; text-decoration: none; cursor: pointer; }
-        .dark-mode .close-btn:hover, .dark-mode .close-btn:focus { color: #fff; }
-        @keyframes fadeIn { from {opacity: 0; transform: scale(0.9);} to {opacity: 1; transform: scale(1);} }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+            animation: fadeIn 0.3s;
+        }
+
+        .dark-mode .modal-content {
+            background-color: #2a2a2a;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .close-btn {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .status-label {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-bottom: 10px;
+            display: inline-block;
+            color: white;
+        }
+
+        .status-pending {
+            background-color: #f39c12;
+        }
+
+        .status-confirmed {
+            background-color: #27ae60;
+        }
+
+        .order-card.pending-payment {
+            background-color: #fcfcfc;
+            opacity: 0.8;
+        }
+
+        .dark-mode .order-card.pending-payment {
+            background-color: #252525;
+        }
+
+        .confirm-btn,
+        .proses-opsi-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .confirm-btn {
+            background-color: #2ecc71;
+        }
+
+        .confirm-btn:hover {
+            background-color: #27ae60;
+        }
+
+        .proses-opsi-btn {
+            background-color: #e67e22;
+        }
+
+        .proses-opsi-btn:hover {
+            background-color: #d35400;
+        }
+
+        #saldo-list-container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #saldo-list-container li {
+            background-color: var(--menu-item-bg);
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
     </style>
 </head>
+
 <body>
+    <header>
+        <nav>
+            <a href="#" id="nav-jastip" class="nav-link active-link">Pesan Jastip</a> |
+            <a href="#" id="nav-saldo" class="nav-link">Cek Saldo</a>
+        </nav>
+    </header>
+
+    <div class="page-container">
+        <!-- Tampilan Login (Awalnya terlihat) -->
+        <div id="login-view">
+            <div class="container">
+                <h1>Silakan Masuk</h1>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-nama">Nama Pengguna:</label>
+                        <input type="text" id="login-nama" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password:</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" id="login-button">Masuk</button>
+                    <div id="login-message" style="color: red; margin-top: 15px;"></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tampilan Aplikasi Utama (Awalnya tersembunyi) -->
+        <div id="app-view" style="display: none;">
+            <div id="page-jastip">
+                <div class="container">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <h1 id="main-title">📝 List Jastip Terpadu</h1>
+                        <div id="user-info" style="text-align: right;"></div>
+                    </div>
+                    <form id="jastip-form">
+                        <div class="form-group" id="menu-kategori-container"><label>Pilih opsi Titipan (maks 6
+                                opsi):</label></div>
+                        <div class="form-group"><label for="total-pesanan">Jumlah Item (Maks 3):</label><input type="number"
+                                id="total-pesanan" name="total-pesanan" placeholder="Contoh: 3" required min="1" max="3">
+                        </div>
+                        <div class="form-group" id="fallback-options-container" style="display: none;">
+                            <label>Jika pesanan tidak ada:</label>
+                            <div class="menu-grid" style="gap: 10px;">
+                                <!-- Opsi akan ditambahkan oleh JavaScript -->
+                            </div>
+                        </div>
+                        <div id="price-calculation"
+                            style="padding: 15px; background-color: #ecf0f1; border-radius: 5px; display: none;">
+                            <p style="margin: 0; font-weight: bold;">Rincian Biaya:</p>
+                            <p style="margin: 5px 0 0 0;" id="price-details"></p>
+                            <div id="saldo-usage-container"
+                                style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;"></div>
+                        </div>
+                        <button type="submit" id="submit-button">Kirim Titipan & Lihat QRIS</button>
+                    </form>
+                    <div id="message"></div>
+                    <div id="order-list">
+                        <h2>Daftar Titipan Saya</h2>
+                        <div id="loading">Memuat daftar titipan...</div>
+                        <div id="list-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-saldo" style="display: none;">
+                <div class="container">
+                    <h1>💰 Cek Saldo Pengguna</h1>
+                    <div id="saldo-list-container">
+                        <p>Memuat data saldo...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="qris-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">×</span>
             <h2>Scan untuk Membayar</h2>
-            <p>Gunakan aplikasi GoPay</p>
-            <img src="QRIS_GOPAY.jpeg" alt="QRIS Code">
+            <img src="QRIS_GOPAY.jpeg" alt="QRIS Code" style="margin-top: 15px;">
             <p style="margin-top: 15px;"><strong>a/n FHasan</strong></p>
         </div>
     </div>
 
-    <div class="container">
-        <h1 id="main-title">📝 List Jastip Terpadu</h1>
-        <button id="show-qris-btn" style="width: 100%; margin-bottom: 20px; background-color: #16a085;">Bayar dengan QRIS</button>
-        <form id="jastip-form">
-            <div class="form-group"><label for="nama">Nama Kamu:</label><input type="text" id="nama" name="nama" placeholder="Contoh: Budi" required></div>
-            <div class="form-group" id="menu-kategori-container"><label>Pilih Titipan (boleh lebih dari satu):</label></div>
-            <div class="form-group"><label for="opsi-lain">Opsi Lain:</label><input type="text" id="opsi-lain" name="opsi-lain" placeholder="Contoh: Apa saja yang penting ayam"></div>
-            <div class="form-group"><label for="total-pesanan">Jumlah Item:</label><input type="number" id="total-pesanan" name="total-pesanan" placeholder="Contoh: 3" required></div>
-            <div class="form-group"><label for="bukti-transfer">Link Bukti Transfer:</label><input type="url" id="bukti-transfer" name="bukti-transfer" placeholder="https://..."></div>
-            <button type="submit" id="submit-button">Kirim Titipan</button>
-        </form>
-        <div id="message"></div>
-        <div id="order-list">
-            <h2>Daftar Titipan Saat Ini</h2>
-            <div id="loading">Memuat daftar titipan...</div>
-            <div id="list-container"></div>
-        </div>
-    </div>
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwd0_IBISPRD8QJiKPjZR7XK293ykakWl3D7nkKbQQSohlyfj4RNHJCBi1qbwPJ_ADtjg/exec";
+        // =================================================================================
+        // KONFIGURASI & VARIABEL GLOBAL
+        // =================================================================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwiH3ZOf2y4WArMqTOR8dlwkJxIUsN6aZGKhhjGvGsRQdH84MFVoMJXSEg809-1ciQCkQ/exec"; // URL ANDA SUDAH BENAR
         const ADMIN_PASSWORD = "RAHASIA123";
         const HARGA_PER_ITEM = 10000;
+        const TARIF_JASA_PERSEN = 0.10;
         let isAdminMode = false;
-        
+        let currentUser = null;
         const menuItems = {
-            "Nasi & Lauk Utama": ["Pernasian (random)","Ayam Cabe Garam", "Nasi bakar", "Nasi kuning", "Nasi goreng", "Nasi bali", "Sate ayam", "Taichan", "Cakalang", "Katsu", "Chicken steak"],
+            "Nasi & Lauk Utama": ["Pernasian (random)", "Ayam Cabe Garam", "Nasi bakar", "Nasi kuning", "Nasi goreng", "Nasi bali", "Sate ayam", "Taichan", "Cakalang", "Katsu", "Chicken steak"],
             "Pasta & Makanan Barat": ["Lasagna", "Spaghetti Carbonara", "Spaghetti Bolognese", "Spaghetti Aglio Olio", "Spaghetti Mentai", "Macaroni Mentai", "Macaroni Schotel", "Burger", "Hotdog", "Zuppa soup", "Sandwich"],
             "Camilan Gurih": ["Pempek", "Dimsum Mentai", "Pangsit chili oil", "Toppoki", "Sushi", "Takoyaki", "Risol", "Pastel", "Spring roll ala vietnam", "Makaroni Mentai"],
             "Kue & Jajanan Manis": ["Nona manis/kue talam", "Bapao", "Bapia kacang ijo", "Apem", "Roti manis", "Onde-onde", "Putu ayu", "Kue sus", "Dadar gulung", "Bugis mandi", "Donat (gula/meses)", "Bomboloni", "Mochi"],
             "Dessert & Minuman": ["Grilled chicken salad", "Salad sayur", "Salad buah", "Jasuke", "Setup roti (pandan/coklat)", "Bubur campur manis", "Pudding", "Buko pandan", "Buah potong", "Manggo sticky rice"]
         };
 
+        // =================================================================================
+        // SELEKTOR ELEMEN DOM
+        // =================================================================================
+        const loginView = document.getElementById('login-view');
+        const appView = document.getElementById('app-view');
+        const loginForm = document.getElementById('login-form');
+        const userInfoDiv = document.getElementById('user-info');
         const form = document.getElementById('jastip-form');
         const listContainer = document.getElementById('list-container');
         const loadingDiv = document.getElementById('loading');
         const menuKategoriContainer = document.getElementById('menu-kategori-container');
         const qrisModal = document.getElementById('qris-modal');
-        const showQrisBtn = document.getElementById('show-qris-btn');
         const closeBtn = document.querySelector('.close-btn');
+        const mainTitle = document.getElementById('main-title');
+        const pageJastip = document.getElementById('page-jastip');
+        const pageSaldo = document.getElementById('page-saldo');
+        const navJastip = document.getElementById('nav-jastip');
+        const navSaldo = document.getElementById('nav-saldo');
+        const fallbackContainer = document.getElementById('fallback-options-container');
+        const totalPesananInput = document.getElementById('total-pesanan');
+        const priceCalculationDiv = document.getElementById('price-calculation');
+        const priceDetailsP = document.getElementById('price-details');
+        const saldoUsageContainer = document.getElementById('saldo-usage-container');
+
+        // =================================================================================
+        // FUNGSI-FUNGSI UTAMA
+        // =================================================================================
+        const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
 
         function renderMenu() {
             let html = '';
@@ -117,7 +506,7 @@
                 html += `<h3 class="category-title">${kategori}</h3><div class="menu-grid">`;
                 menuItems[kategori].forEach(item => {
                     const id = item.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-                    html += `<div class="menu-item"><input type="checkbox" id="${id}" name="titipan" value="${item}"><label for="${id}">${item}</label></div>`;
+                    html += `<div class="menu-item"><input type="checkbox" id="${id}" name="titipan" value="${item}"><label for="${id}" style="margin-left: 8px;">${item}</label></div>`;
                 });
                 html += `</div>`;
             }
@@ -125,25 +514,18 @@
         }
 
         async function fetchOrders() {
-            const openAccordions = new Set();
-            document.querySelectorAll('.accordion.active').forEach(acc => openAccordions.add(acc.dataset.date));
+            if (!currentUser) return;
             loadingDiv.style.display = 'block';
             try {
                 const response = await fetch(SCRIPT_URL);
                 const result = await response.json();
                 listContainer.innerHTML = '';
                 if (result.data && result.data.length > 0) {
-                    displayOrders(result.data);
+                    const ordersToDisplay = isAdminMode ? result.data : result.data.filter(o => o.Nama && o.Nama.toLowerCase() === currentUser.nama.toLowerCase());
+                    displayOrders(ordersToDisplay);
                 } else {
-                    listContainer.innerHTML = '<p>Belum ada titipan. Jadilah yang pertama!</p>';
+                    listContainer.innerHTML = '<p>Belum ada titipan.</p>';
                 }
-                document.querySelectorAll('.accordion').forEach(acc => {
-                    if (openAccordions.has(acc.dataset.date)) {
-                        acc.classList.add('active');
-                        const panel = acc.nextElementSibling;
-                        panel.style.maxHeight = panel.scrollHeight + "px";
-                    }
-                });
             } catch (error) {
                 console.error('Error fetching orders:', error);
                 listContainer.innerHTML = '<p style="color: red;">Gagal memuat daftar titipan.</p>';
@@ -153,8 +535,8 @@
         }
 
         function displayOrders(orders) {
-            const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
             const groupedByDate = orders.reduce((acc, order) => {
+                if (!order.Timestamp) return acc;
                 const date = order.Timestamp.substring(0, 10);
                 if (!acc[date]) acc[date] = [];
                 acc[date].push(order);
@@ -164,41 +546,426 @@
             let html = '';
             sortedDates.forEach(date => {
                 const displayDate = new Date(date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                const totalItems = groupedByDate[date].reduce((sum, order) => sum + parseInt(order['Total Pesanan'] || 0, 10), 0);
-                html += `<button class="accordion" data-date="${date}">${displayDate} (Total ${totalItems} Item)</button><div class="panel">`;
+                const totalActiveItems = groupedByDate[date]
+                    .filter(o => (o.StatusPembayaran || o.statuspembayaran) === 'Pembayaran Dikonfirmasi')
+                    .reduce((sum, order) => sum + parseInt(order['Total Pesanan'] || 0, 10), 0);
+                html += `<button class="accordion" data-date="${date}">${displayDate} (Total Aktif: ${totalActiveItems} Item)</button><div class="panel">`;
                 groupedByDate[date].sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
                 groupedByDate[date].forEach(order => {
+                    const statusPembayaran = order.StatusPembayaran || order.statuspembayaran || 'Menunggu Konfirmasi';
+                    const opsiFallback = order.OpsiFallback || order.opsifallback || '-';
+                    const isPaymentConfirmed = statusPembayaran === 'Pembayaran Dikonfirmasi';
+                    const isProcessed = statusPembayaran === 'Selesai Diproses';
+                    const cardClass = !isPaymentConfirmed && !isProcessed ? 'pending-payment' : '';
                     const displayTime = new Date(order.Timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    let statusLabel;
+                    if (isProcessed) statusLabel = `<span class="status-label" style="background-color: #95a5a6;">✔️ Selesai Diproses</span>`;
+                    else if (isPaymentConfirmed) statusLabel = `<span class="status-label status-confirmed">✅ Pembayaran Dikonfirmasi</span>`;
+                    else statusLabel = `<span class="status-label status-pending">⏳ Menunggu Konfirmasi</span>`;
+                    const adminConfirmButton = (isAdminMode && !isPaymentConfirmed && !isProcessed) ? `<button class="confirm-btn" data-id="${order.ID}">Konfirmasi Pembayaran</button>` : '';
+                    const prosesOpsiButton = (isAdminMode && isPaymentConfirmed) ? `<button class="proses-opsi-btn" data-id="${order.ID}">Proses Opsi Fallback</button>` : '';
                     const titipanItems = order.Titipan ? order.Titipan.split(', ') : [];
                     const selesaiItems = order['Item Selesai'] ? order['Item Selesai'].split(',') : [];
-                    const dibatalkanItems = order['Item Dibatalkan'] ? order['Item Dibatalkan'].split(',') : [];
-                    const totalPesanan = parseInt(order['Total Pesanan'] || 0);
-                    const jumlahItemSelesai = selesaiItems.length;
-                    const totalAwal = totalPesanan * HARGA_PER_ITEM;
-                    const totalAkhir = jumlahItemSelesai * HARGA_PER_ITEM;
-                    const jumlahRefund = totalAwal - totalAkhir;
                     let checklistHtml = '<div class="item-checklist">';
                     titipanItems.forEach(item => {
                         const isChecked = selesaiItems.includes(item);
-                        const isCancelled = dibatalkanItems.includes(item);
-                        const isDisabled = !isAdminMode || isCancelled;
-                        checklistHtml += `<div class="checklist-item ${isCancelled ? 'item-cancelled' : ''}"><div><input type="checkbox" class="item-status-cb" value="${item}" ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}><label>${item}</label></div>${isAdminMode && !isCancelled ? `<button class="cancel-btn" data-item="${item}">X</button>` : ''}</div>`;
+                        const isDisabled = !isPaymentConfirmed || !isAdminMode || isProcessed;
+                        checklistHtml += `<div class="checklist-item"><div><input type="checkbox" class="item-status-cb" value="${item}" ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}><label>${item}</label></div></div>`;
                     });
                     checklistHtml += '</div>';
-                    html += `<div class="order-card" data-id="${order.ID}"><button class="edit-btn">Edit</button><h3>${order.Nama}</h3><p><strong>Titipan:</strong></p>${checklistHtml}<hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;"><div class="finance-info"><p>Total Awal (Pesanan: ${totalPesanan} item): <strong>${formatRupiah(totalAwal)}</strong></p><p>Total Akhir (Didapat: ${jumlahItemSelesai} item): <strong>${formatRupiah(totalAkhir)}</strong></p><p style="color: #e74c3c;">Jumlah Refund: <strong>${formatRupiah(jumlahRefund)}</strong></p></div><hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;"><p class="editable-opsi"><strong>Opsi Lain:</strong> <span>${order['Opsi Lain'] || '-'}</span></p><p class="editable-total" style="display:none;"><strong>Jumlah Item:</strong> <span>${order['Total Pesanan'] || '0'}</span></p><p class="editable-bukti"><strong>Bukti TF:</strong> <span>${order['Bukti Transfer'] ? `<a href="${order['Bukti Transfer']}" target="_blank">Lihat Bukti</a>` : 'Belum ada'}</span></p><p class="timestamp">Dipesan jam: ${displayTime}</p></div>`;
+                    html += `
+                        <div class="order-card ${cardClass}" data-id="${order.ID}">
+                            ${statusLabel}
+                            <h3>${order.Nama}</h3>
+                            <p><strong>Titipan (${order['Total Pesanan']} item):</strong></p>
+                            ${checklistHtml}
+                            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
+                            <p><strong>Opsi Jika Habis:</strong> ${opsiFallback}</p>
+                            <p class="timestamp">Dipesan jam: ${displayTime}</p>
+                            ${adminConfirmButton}
+                            ${prosesOpsiButton}
+                        </div>`;
                 });
                 html += `</div>`;
             });
             listContainer.innerHTML = html || '<p>Belum ada titipan.</p>';
         }
 
-        showQrisBtn.onclick = function() { qrisModal.style.display = "block"; }
-        closeBtn.onclick = function() { qrisModal.style.display = "none"; }
-        window.onclick = function(event) { if (event.target == qrisModal) { qrisModal.style.display = "none"; } }
+        function updateFallbackOptions() {
+            const jumlah = parseInt(totalPesananInput.value) || 0;
+            const container = fallbackContainer.querySelector('.menu-grid');
+            container.innerHTML = '';
+            fallbackContainer.style.display = jumlah > 0 ? 'block' : 'none';
+            if (jumlah === 0) {
+                calculatePrice();
+                return;
+            }
+            let options = { "Random": "Random", "Refund Semua": "Refund Semua", "Deposit Semua": "Deposit Semua" };
+            if (jumlah >= 2) {
+                options["Random 1 & Deposit"] = "Random 1 & Deposit";
+                options["Random 1 & Refund"] = "Random 1 & Refund";
+            }
+            if (jumlah === 3) {
+                options["Random 2 & Deposit"] = "Random 2 & Deposit";
+                options["Random 2 & Refund"] = "Random 2 & Refund";
+            }
+            let html = '';
+            for (const [value, label] of Object.entries(options)) {
+                const id = `opt-${value.replace(/[^a-zA-Z0-9]/g, '')}`;
+                html += `<div class="menu-item"><input type="radio" id="${id}" name="opsi-fallback" value="${value}" required><label for="${id}" style="margin-left: 8px;">${label}</label></div>`;
+            }
+            container.innerHTML = html;
+            calculatePrice();
+        }
 
-        let clickCount = 0;
-        document.getElementById('main-title').addEventListener('click', () => {
+        // --- PERUBAHAN UTAMA DIMULAI DI SINI ---
+      // --- FUNGSI calculatePrice() YANG SUDAH DIPERBAIKI ---
+        function calculatePrice() {
+            const jumlahItem = parseInt(totalPesananInput.value, 10);
+
+            // 1. SIMPAN STATUS CHECKBOX SEBELUM DIHAPUS
+            const oldCheckbox = document.getElementById('use-saldo');
+            const wasChecked = oldCheckbox ? oldCheckbox.checked : false;
+
+            // 2. HAPUS DAN BUAT ULANG CHECKBOX (seperti sebelumnya)
+            saldoUsageContainer.innerHTML = '';
+            if (currentUser && currentUser.saldoDeposit > 0 && !isNaN(jumlahItem) && jumlahItem > 0) {
+                saldoUsageContainer.innerHTML = `
+            <div class="menu-item" style="background-color: transparent;">
+                <input type="checkbox" id="use-saldo" ${wasChecked ? 'checked' : ''}>
+                <label for="use-saldo" style="margin-left: 8px; font-weight: bold; color: #e67e22;">Gunakan Saldo Deposit (${formatRupiah(currentUser.saldoDeposit)})</label>
+            </div>`;
+                document.getElementById('use-saldo').addEventListener('change', calculatePrice);
+            }
+
+            // Sembunyikan rincian jika item 0
+            if (isNaN(jumlahItem) || jumlahItem <= 0) {
+                priceCalculationDiv.style.display = 'none';
+                return;
+            }
+
+            // 3. LANJUTKAN KALKULASI DENGAN STATUS YANG BENAR
+            const useSaldoCheckbox = document.getElementById('use-saldo');
+            const isUsingSaldo = useSaldoCheckbox && useSaldoCheckbox.checked;
+
+            const hargaBarang = jumlahItem * HARGA_PER_ITEM;
+            let saldoDigunakan = 0;
+            let sisaHargaBayarTunai = hargaBarang;
+
+            if (isUsingSaldo) {
+                saldoDigunakan = Math.min(hargaBarang, currentUser.saldoDeposit);
+                sisaHargaBayarTunai = hargaBarang - saldoDigunakan;
+            }
+
+            const biayaJasa = sisaHargaBayarTunai * TARIF_JASA_PERSEN;
+            const totalTagihan = hargaBarang + biayaJasa;
+            const sisaBayar = totalTagihan - saldoDigunakan;
+
+            let rincianHtml = `Harga Barang (${jumlahItem} item): ${formatRupiah(hargaBarang)}`;
+
+            if (isUsingSaldo) {
+                rincianHtml += `<br><span style="text-decoration: line-through;">Jasa Titip (10%): ${formatRupiah(hargaBarang * TARIF_JASA_PERSEN)}</span>`;
+                if (biayaJasa > 0) {
+                    rincianHtml += `<br>Jasa Titip (dari sisa): ${formatRupiah(biayaJasa)}`;
+                } else {
+                    rincianHtml += ` (Gratis via Saldo)`;
+                }
+            } else {
+                rincianHtml += `<br>Jasa Titip (10%): ${formatRupiah(biayaJasa)}`;
+            }
+
+            rincianHtml += `<br><strong>Total Tagihan: ${formatRupiah(totalTagihan)}</strong>`;
+
+            if (saldoDigunakan > 0) {
+                rincianHtml += `<br><span style="color: #e67e22;">Saldo Dipakai: -${formatRupiah(saldoDigunakan)}</span>`;
+            }
+
+            rincianHtml += `<br><strong style="font-size: 1.2em; color: #27ae60;">Sisa Bayar: ${formatRupiah(sisaBayar)}</strong>`;
+
+            priceDetailsP.innerHTML = rincianHtml;
+            priceCalculationDiv.style.display = 'block';
+        }// --- PERUBAHAN UTAMA SELESAI DI SINI ---
+
+        async function fetchBalances() {
+            const container = document.getElementById('saldo-list-container');
+            container.innerHTML = '<p>Memuat data saldo...</p>';
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=get_balances`);
+                const result = await response.json();
+                if (!result.data) throw new Error("Format data saldo tidak valid.");
+                let depositHtml = '<h3>💰 Saldo Deposit</h3><ul>';
+                let refundHtml = '<h3>💸 Saldo Refund</h3><ul>';
+                let hasDeposit = false;
+                let hasRefund = false;
+                result.data.forEach(user => {
+                    if (user.SaldoDeposit > 0) {
+                        depositHtml += `<li>${user.Nama}: ${formatRupiah(user.SaldoDeposit)}</li>`;
+                        hasDeposit = true;
+                    }
+                    if (user.SaldoRefund > 0) {
+                        refundHtml += `<li>${user.Nama}: ${formatRupiah(user.SaldoRefund)}</li>`;
+                        hasRefund = true;
+                    }
+                });
+                if (!hasDeposit) depositHtml += '<li>Belum ada saldo deposit.</li>';
+                if (!hasRefund) refundHtml += '<li>Belum ada saldo refund.</li>';
+                depositHtml += '</ul>';
+                refundHtml += '</ul>';
+                container.innerHTML = depositHtml + refundHtml;
+            } catch (error) {
+                container.innerHTML = `<p style="color: red;">Gagal memuat saldo: ${error.message}</p>`;
+            }
+        }
+
+        function showPage(pageName) {
+            if (pageName === 'jastip') {
+                pageJastip.style.display = 'block';
+                pageSaldo.style.display = 'none';
+                navJastip.classList.add('active-link');
+                navSaldo.classList.remove('active-link');
+            } else if (pageName === 'saldo') {
+                pageJastip.style.display = 'none';
+                pageSaldo.style.display = 'block';
+                navJastip.classList.remove('active-link');
+                navSaldo.classList.add('active-link');
+                if (isAdminMode) fetchBalances();
+                else document.getElementById('saldo-list-container').innerHTML = "<p>Halaman ini hanya untuk Admin.</p>";
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const button = e.target.querySelector('button');
+            button.disabled = true;
+            button.textContent = 'Memeriksa...';
+            const nama = document.getElementById('login-nama').value;
+            const password = document.getElementById('login-password').value;
+            const messageDiv = document.getElementById('login-message');
+            messageDiv.textContent = '';
+            try {
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'login', nama, password }) });
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
+                currentUser = result.user;
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showAppView();
+            } catch (error) {
+                messageDiv.textContent = error.message;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Masuk';
+            }
+        }
+
+        function showAppView() {
+            loginView.style.display = 'none';
+            appView.style.display = 'block';
+            showPage('jastip');
+            userInfoDiv.innerHTML = `<p style="margin: 0;">Halo, <strong>${currentUser.nama}</strong>! | Saldo: <strong>${formatRupiah(currentUser.saldoDeposit)}</strong></p>`;
+            // Panggil calculatePrice untuk mengupdate tampilan jika ada input yang sudah terisi
+            calculatePrice();
+            fetchOrders();
+        }
+
+        // =================================================================================
+        // EVENT LISTENERS
+        // =================================================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+                renderMenu();
+
+                const loggedInUserJSON = sessionStorage.getItem('currentUser');
+                const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+
+                if (isAdmin) {
+                    isAdminMode = true;
+                    document.body.classList.add('dark-mode');
+                }
+
+                if (loggedInUserJSON) {
+                    const storedUser = JSON.parse(loggedInUserJSON);
+                    try {
+                        // Ambil data terbaru dari server saat refresh
+                        const response = await fetch(SCRIPT_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'get_user_data', nama: storedUser.nama })
+                        });
+                        const result = await response.json();
+
+                        if (result.status === 'success') {
+                            // Perbarui data pengguna dan sessionStorage dengan yang terbaru
+                            currentUser = result.user;
+                            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                            showAppView();
+                        } else {
+                            // Jika pengguna tidak valid lagi, paksa logout
+                            throw new Error('Sesi tidak valid, silakan login kembali.');
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        // Jika ada error (jaringan/pengguna tidak valid), bersihkan sesi dan tampilkan login
+                        sessionStorage.removeItem('currentUser');
+                        sessionStorage.removeItem('isAdmin');
+                        loginView.style.display = 'block';
+                        appView.style.display = 'none';
+                    }
+                } else {
+                    // Jika tidak ada sesi, tampilkan login
+                    loginView.style.display = 'block';
+                    appView.style.display = 'none';
+                }
+            });
+
+        loginForm.addEventListener('submit', handleLogin);
+        totalPesananInput.addEventListener('input', updateFallbackOptions);
+
+        // --- PERUBAHAN PADA LOGIKA SUBMIT ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = document.getElementById('submit-button');
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = '';
+
+            const selectedTitipan = Array.from(document.querySelectorAll('input[name="titipan"]:checked'));
+            if (selectedTitipan.length === 0 || selectedTitipan.length > 6) {
+                messageDiv.textContent = 'Pilih antara 1 hingga 6 opsi titipan!';
+                messageDiv.style.color = 'red';
+                return;
+            }
+            const selectedFallback = document.querySelector('input[name="opsi-fallback"]:checked');
+            if (!selectedFallback) {
+                messageDiv.textContent = 'Pilih salah satu opsi jika pesanan tidak ada!';
+                messageDiv.style.color = 'red';
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Memproses...';
+
+            // Lakukan kalkulasi akhir untuk mendapatkan data yang akan dikirim
+            const jumlahItem = parseInt(totalPesananInput.value, 10);
+            const useSaldoCheckbox = document.getElementById('use-saldo');
+            const isUsingSaldo = useSaldoCheckbox && useSaldoCheckbox.checked;
+            const hargaBarang = jumlahItem * HARGA_PER_ITEM;
+            let saldoDigunakan = 0;
+            if (isUsingSaldo) {
+                saldoDigunakan = Math.min(hargaBarang, currentUser.saldoDeposit);
+            }
+            const sisaHargaBayarTunai = hargaBarang - saldoDigunakan;
+            const biayaJasa = sisaHargaBayarTunai * TARIF_JASA_PERSEN;
+            const totalTagihan = hargaBarang + biayaJasa;
+            const sisaBayar = totalTagihan - saldoDigunakan;
+
+            const data = {
+                nama: currentUser.nama,
+                titipan: selectedTitipan.map(cb => cb.value).join(', '),
+                opsiFallback: selectedFallback.value,
+                totalPesanan: totalPesananInput.value,
+                saldoDigunakan: saldoDigunakan,
+                // Jika lunas dengan saldo, status langsung 'Dikonfirmasi'
+                statusPembayaran: sisaBayar <= 0 ? 'Pembayaran Dikonfirmasi' : 'Menunggu Konfirmasi'
+            };
+
+            try {
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+                const result = await response.json();
+                if (result.status === "success") {
+                    // Update saldo pengguna di frontend secara real-time
+                    currentUser.saldoDeposit -= saldoDigunakan;
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                    form.reset();
+                    updateFallbackOptions(); // Ini juga akan memanggil calculatePrice
+
+                    if (sisaBayar <= 0) {
+                        alert('Pesanan berhasil dikirim dan LUNAS dibayar dengan saldo!');
+                    } else {
+                        messageDiv.textContent = "Pesanan berhasil dikirim. Silakan selesaikan pembayaran.";
+                        messageDiv.style.color = 'green';
+                        qrisModal.style.display = "block";
+                    }
+
+                    // Refresh tampilan info user dan daftar pesanan
+                    showAppView();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                messageDiv.textContent = 'Gagal mengirim titipan: ' + error.message;
+                messageDiv.style.color = 'red';
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Kirim Titipan & Lihat QRIS';
+            }
+        });
+
+        listContainer.addEventListener('click', async function (e) {
+            if (e.target.classList.contains('accordion')) {
+                e.target.classList.toggle('active');
+                const panel = e.target.nextElementSibling;
+                panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";
+            }
+            else if (e.target.classList.contains('confirm-btn')) {
+                if (!confirm('Anda yakin ingin mengonfirmasi pembayaran untuk pesanan ini?')) return;
+                const button = e.target;
+                button.disabled = true;
+                button.textContent = 'Mengonfirmasi...';
+                try {
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'confirm_payment', id: button.dataset.id }) });
+                    const result = await response.json();
+                    if (result.status !== 'success') throw new Error(result.message);
+                    alert('Pembayaran berhasil dikonfirmasi!');
+                    await fetchOrders();
+                } catch (error) {
+                    alert('Gagal mengonfirmasi pembayaran: ' + error.message);
+                    button.disabled = false;
+                }
+            }
+            else if (e.target.classList.contains('proses-opsi-btn')) {
+                const card = e.target.closest('.order-card');
+                const orderId = card.dataset.id;
+                const userName = card.querySelector('h3').textContent;
+                const itemSelesai = Array.from(card.querySelectorAll('.item-status-cb:checked')).map(cb => cb.value).join(',');
+                const opsiFallbackElement = Array.from(card.querySelectorAll('p')).find(p => p.textContent.includes('Opsi Jika Habis:'));
+                const opsiFallback = opsiFallbackElement ? opsiFallbackElement.textContent.replace('Opsi Jika Habis: ', '') : '';
+                if (!opsiFallback) {
+                    alert('Error: Tidak dapat menemukan Opsi Fallback untuk diproses.');
+                    return;
+                }
+                if (!confirm(`Proses opsi "${opsiFallback}" untuk ${userName}?`)) return;
+                e.target.disabled = true;
+                e.target.textContent = 'Memproses...';
+                const data = { action: 'process_fallback', orderId, userName, itemSelesai, opsiFallback };
+                try {
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+                    const result = await response.json();
+                    if (result.status !== 'success') throw new Error(result.message);
+                    alert('Opsi berhasil diproses!');
+                    await fetchOrders();
+                } catch (error) {
+                    alert('Gagal memproses opsi: ' + error.message);
+                    e.target.disabled = false;
+                }
+            }
+            else if (e.target.classList.contains('item-status-cb')) {
+                const card = e.target.closest('.order-card');
+                const orderId = card.dataset.id;
+                const checkboxes = card.querySelectorAll('.item-status-cb:checked');
+                const checkedItems = Array.from(checkboxes).map(cb => cb.value);
+                try {
+                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'update_status', id: orderId, checkedItems: checkedItems.join(',') }) });
+                } catch (error) {
+                    console.error('Gagal update status item:', error);
+                    alert('Gagal menyimpan status centang. Coba refresh halaman.');
+                    fetchOrders();
+                }
+            }
+        });
+
+        mainTitle.addEventListener('click', () => {
+            let clickCount = parseInt(mainTitle.dataset.clickCount) || 0;
             clickCount++;
+            mainTitle.dataset.clickCount = clickCount;
             if (clickCount >= 5) {
                 const pass = prompt('Masukkan password admin:');
                 if (pass === ADMIN_PASSWORD) {
@@ -207,136 +974,19 @@
                     document.body.classList.add('dark-mode');
                     sessionStorage.setItem('isAdmin', 'true');
                     fetchOrders();
-                } else { alert('Password salah!'); }
-                clickCount = 0;
+                } else if (pass) {
+                    alert('Password salah!');
+                }
+                mainTitle.dataset.clickCount = 0;
             }
-            setTimeout(() => { clickCount = 0; }, 2000);
+            setTimeout(() => { mainTitle.dataset.clickCount = 0; }, 2000);
         });
 
-        if (sessionStorage.getItem('isAdmin') === 'true') {
-            isAdminMode = true;
-            document.body.classList.add('dark-mode');
-        }
-
-        listContainer.addEventListener('click', async function(e) {
-            if (e.target.classList.contains('accordion')) {
-                e.target.classList.toggle('active');
-                const panel = e.target.nextElementSibling;
-                panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";
-            }
-            else if (e.target.classList.contains('cancel-btn')) {
-                const itemToCancel = e.target.dataset.item;
-                if (!confirm(`Anda yakin ingin membatalkan item: "${itemToCancel}"?`)) return;
-                const card = e.target.closest('.order-card');
-                const orderId = card.dataset.id;
-                e.target.parentElement.classList.add('item-cancelled');
-                e.target.parentElement.querySelector('input[type="checkbox"]').disabled = true;
-                e.target.style.display = 'none';
-                let currentCancelled = Array.from(card.querySelectorAll('.item-cancelled label')).map(label => label.textContent);
-                try {
-                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'cancel_item', id: orderId, cancelledItems: currentCancelled }) });
-                    await fetchOrders();
-                } catch (error) {
-                    console.error('Gagal membatalkan item:', error);
-                    alert('Gagal membatalkan item.');
-                }
-            }
-            else if (e.target.classList.contains('item-status-cb')) {
-                const card = e.target.closest('.order-card');
-                const orderId = card.dataset.id;
-                const checkboxes = card.querySelectorAll('.item-status-cb:checked');
-                const checkedItems = Array.from(checkboxes).map(cb => cb.value);
-                const financeInfo = card.querySelector('.finance-info');
-                const totalPesanan = parseInt(card.querySelector('.editable-total span').textContent || 0);
-                const jumlahItemSelesai = checkedItems.length;
-                const totalAwal = totalPesanan * HARGA_PER_ITEM;
-                const totalAkhir = jumlahItemSelesai * HARGA_PER_ITEM;
-                const jumlahRefund = totalAwal - totalAkhir;
-                const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
-                financeInfo.innerHTML = `<p>Total Awal (Pesanan: ${totalPesanan} item): <strong>${formatRupiah(totalAwal)}</strong></p><p>Total Akhir (Didapat: ${jumlahItemSelesai} item): <strong>${formatRupiah(totalAkhir)}</strong></p><p style="color: #e74c3c;">Jumlah Refund: <strong>${formatRupiah(jumlahRefund)}</strong></p>`;
-                try {
-                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'update_status', id: orderId, checkedItems: checkedItems }) });
-                } catch (error) {
-                    console.error('Gagal update status item:', error);
-                    alert('Gagal menyimpan status centang. Coba refresh halaman.');
-                    fetchOrders();
-                }
-            }
-            else if (e.target.classList.contains('edit-btn')) {
-                const card = e.target.closest('.order-card');
-                const opsiP = card.querySelector('.editable-opsi span');
-                const totalP = card.querySelector('.editable-total span');
-                const buktiP = card.querySelector('.editable-bukti span');
-                const buktiLink = buktiP.querySelector('a');
-                const currentTotal = totalP.textContent.replace(/[^0-9]/g, '');
-                opsiP.innerHTML = `<input type="text" value="${opsiP.textContent === '-' ? '' : opsiP.textContent}">`;
-                totalP.parentElement.style.display = 'block';
-                totalP.innerHTML = `<input type="number" value="${currentTotal}">`;
-                buktiP.innerHTML = `<input type="url" value="${buktiLink ? buktiLink.href : ''}">`;
-                e.target.textContent = 'Simpan';
-                e.target.classList.remove('edit-btn'); e.target.classList.add('save-btn');
-            } 
-            else if (e.target.classList.contains('save-btn')) {
-                e.target.disabled = true; e.target.textContent = '...';
-                const card = e.target.closest('.order-card');
-                const data = {
-                    action: 'update_details',
-                    id: card.dataset.id,
-                    opsiLain: card.querySelector('.editable-opsi input').value,
-                    totalPesanan: card.querySelector('.editable-total input').value,
-                    buktiTransfer: card.querySelector('.editable-bukti input').value
-                };
-                try {
-                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
-                    const result = await response.json();
-                    if (result.status !== 'success') throw new Error(result.message);
-                    await fetchOrders();
-                } catch (error) {
-                    alert('Gagal menyimpan perubahan: ' + error.message);
-                    e.target.disabled = false; e.target.textContent = 'Simpan';
-                }
-            }
-        });
-        
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitButton = document.getElementById('submit-button');
-            submitButton.disabled = true; submitButton.textContent = 'Mengirim...';
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = '';
-            const selectedItems = Array.from(document.querySelectorAll('input[name="titipan"]:checked')).map(cb => cb.value);
-            if (selectedItems.length === 0) {
-                messageDiv.textContent = 'Pilih minimal satu titipan!'; messageDiv.style.color = 'red';
-                submitButton.disabled = false; submitButton.textContent = 'Kirim Titipan';
-                return;
-            }
-            const data = {
-                nama: document.getElementById('nama').value,
-                titipan: selectedItems.join(', '),
-                opsiLain: document.getElementById('opsi-lain').value,
-                totalPesanan: document.getElementById('total-pesanan').value,
-                buktiTransfer: document.getElementById('bukti-transfer').value
-            };
-            try {
-                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
-                const result = await response.json();
-                if (result.status === "success") {
-                    messageDiv.textContent = result.message; messageDiv.style.color = 'green';
-                    form.reset();
-                    await fetchOrders();
-                } else { throw new Error(result.message); }
-            } catch (error) {
-                console.error('Error submitting form:', error);
-                messageDiv.textContent = 'Gagal mengirim titipan: ' + error.message; messageDiv.style.color = 'red';
-            } finally {
-                submitButton.disabled = false; submitButton.textContent = 'Kirim Titipan';
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            renderMenu();
-            fetchOrders();
-        });
+        navJastip.addEventListener('click', (e) => { e.preventDefault(); showPage('jastip'); });
+        navSaldo.addEventListener('click', (e) => { e.preventDefault(); showPage('saldo'); });
+        closeBtn.onclick = function () { qrisModal.style.display = "none"; }
+        window.onclick = function (event) { if (event.target == qrisModal) { qrisModal.style.display = "none"; } }
     </script>
 </body>
+
 </html>
